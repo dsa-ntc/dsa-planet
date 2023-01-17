@@ -14,9 +14,9 @@ tasks:
     sudo gem install bundler -v 2.3.26
 - build: |
     cd dsa-planet.srht.site 
-    bundler install
-    bundler exec rake build
-    bundle exec jekyll build
+    sudo bundler install
+    sudo bundler exec rake build
+    sudo bundle exec jekyll build
 - package: |
     cd dsa-planet.srht.site/_site
     tar -cvz . > ../../site.tar.gz
