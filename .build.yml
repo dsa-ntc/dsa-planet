@@ -19,11 +19,6 @@ sources:
 tasks:
 - install-bundler: |
     sudo gem install bundler -v 2.3.26
-- install-hut: |
-    git clone https://git.sr.ht/~emersion/hut
-    cd hut
-    make
-    sudo make install
 - build: |
     cd dsa-planet.srht.site 
     bundler install
@@ -33,6 +28,8 @@ tasks:
     cd dsa-planet.srht.site/_site
     tar -cvz . > ../../site.tar.gz
 - upload: |
-    curl --oauth2-bearer $secrets \
+    curl --oauth2-bearer "
+AC2wqGUAAAAAQHBhZ2VzLnNyLmh0L1BST0ZJTEU6UlcgcGFnZXMuc3IuaHQvU0lURVM6UlcgcGFnZXMuc3IuaHQvUEFHRVM6UlcABmNtYWhucw9m4z61vmo9savaMq3eoNEa/7NP2hnZBkhxbGwjFp9N
+" \
     -Fcontent=@site.tar.gz \
     https://pages.sr.ht/publish/dsa-planet.srht.site
