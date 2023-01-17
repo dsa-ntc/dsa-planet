@@ -11,7 +11,7 @@ sources:
 - https://git.sr.ht/~cmahns/dsa-planet.srht.site
 tasks:
 - install-bundler: |
-    sudo gem install bundler
+    sudo gem install bundler -v 2.3.26
 - build: |
     cd your-repo-name
     bundler install
