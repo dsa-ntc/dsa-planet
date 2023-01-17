@@ -13,7 +13,7 @@ packages:
 environment:
 secrets:
 -  a9c8555e-d2d0-4a61-acf6-f869c25d668a
-site: dsa-planet.srht.site
+site: dsa-planet.cmahns.srht.site
 sources:
 - https://git.sr.ht/~cmahns/dsa-planet.srht.site
 tasks:
