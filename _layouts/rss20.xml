@@ -1,0 +1,23 @@
+---
+---
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ locale[site.title] }} - {{ page.locale.name }}</title>
+{%- if page.locale.name == 'Global' %}{% assign lang_id = 'global/' %}{% else %}{% assign lang_id = page.locale.id | append: '/' %}{% endif %}
+    <link>{{ lang_id | absolute_url }}</link>
+    <description>{{ locale[site.description] }}</description>
+    <atom:link href="{{ lang_id | append: 'rss20.xml' | absolute_url }}" rel="self" type="application/rss+xml"/>
+    <atom:link href="{{ lang_id | append: 'atom.xml' | absolute_url }}" type="application/atom+xml"/>
+{% for post in paginator.posts %}
+    <item>
+      <guid isPermaLink="{% if post.guid contains '://' %}true{% else %}false{% endif %}">{{ post.guid }}</guid>
+      <dc:creator>{{ post.author }}</dc:creator>
+      <title>{{ post.title | xml_escape }}</title>
+      <pubDate>{{ post.created_at | date_to_rfc822 }}</pubDate>
+      <link>{{ post.original_link | xml_escape }}</link>
+      <description>{{ post.content | xml_escape }}</description>
+    </item>
+{% endfor %}
+  </channel>
+</rss>
