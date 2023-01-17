@@ -19,7 +19,7 @@ sources:
 tasks:
 - install-bundler: |
     sudo gem install bundler -v 2.3.26
-- install hut: |
+- install-hut: |
     git clone https://sr.ht/~emersion/hut/
     cd hut
     make
