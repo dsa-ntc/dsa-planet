@@ -1,7 +1,7 @@
 image: debian/stable
 oauth: pages.sr.ht/PAGES:RW
 packages:
-- hut
+- git
 - ruby-full
 - ruby-dev
 - ruby-bundler
@@ -19,6 +19,11 @@ sources:
 tasks:
 - install-bundler: |
     sudo gem install bundler -v 2.3.26
+- install hut: |
+    git clone https://sr.ht/~emersion/hut/
+    cd hut
+    make
+    sudo make install
 - build: |
     cd dsa-planet.srht.site 
     bundler install
