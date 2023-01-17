@@ -13,7 +13,7 @@ tasks:
 - install-bundler: |
     sudo gem install bundler -v 2.3.26
 - build: |
-    cd your-repo-name
+    cd dsa-planet.srht.site 
     bundler install
     bundler exec rake build
     bundle exec jekyll build
