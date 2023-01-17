@@ -3,6 +3,11 @@ oauth: pages.sr.ht/PAGES:RW
 packages:
 - ruby-full
 - ruby-dev
+- ruby-bundler
+- sudo
+- gcc
+- make
+- libsqlite3-dev
 - sqlite3
 environment:
 secrets:
