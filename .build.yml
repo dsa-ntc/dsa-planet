@@ -1,6 +1,7 @@
 image: debian/stable
 oauth: pages.sr.ht/PAGES:RW
 packages:
+- hut
 - ruby-full
 - ruby-dev
 - ruby-bundler
@@ -27,4 +28,4 @@ tasks:
     cd dsa-planet.srht.site/_site
     tar -cvz . > ../../site.tar.gz
 - upload: |
-    acurl -f https://pages.sr.ht/publish/$site -Fcontent=@site.tar.gz
+    hut pages publish -d $site site.tar.gz
