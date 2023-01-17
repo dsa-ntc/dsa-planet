@@ -15,7 +15,7 @@ secrets:
 -  a9c8555e-d2d0-4a61-acf6-f869c25d668a
 site: dsa-planet.cmahns.srht.site
 sources:
-- https://git.sr.ht/~cmahns/dsa-planet.srht.site
+- https://git.sr.ht/~cmahns/dsa-planet.cmahns.srht.site
 tasks:
 - install-bundler: |
     sudo gem install bundler -v 2.3.26
@@ -30,4 +30,4 @@ tasks:
 - upload: |
     curl --oauth2-bearer "AC2wqGUAAAAAQHBhZ2VzLnNyLmh0L1BST0ZJTEU6UlcgcGFnZXMuc3IuaHQvU0lURVM6UlcgcGFnZXMuc3IuaHQvUEFHRVM6UlcABmNtYWhucw9m4z61vmo9savaMq3eoNEa/7NP2hnZBkhxbGwjFp9N" \
     -Fcontent=@site.tar.gz \
-    https://pages.sr.ht/publish/dsa-planet.srht.site
+    https://pages.sr.ht/publish/dsa-planet.cmahns.srht.site
