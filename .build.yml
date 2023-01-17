@@ -1,0 +1,24 @@
+image: debian/oldstable
+oauth: pages.sr.ht/PAGES:RW
+packages:
+- ruby-full
+- ruby-dev
+environment:
+secrets:
+-  a9c8555e-d2d0-4a61-acf6-f869c25d668a
+site: dsa-planet.srht.site
+sources:
+- https://git.sr.ht/~cmahns/dsa-planet.srht.site
+tasks:
+- install-bundler: |
+    sudo gem install bundler
+- build: |
+    cd your-repo-name
+    bundler install
+    bundler exec rake build
+    bundle exec jekyll build
+- package: |
+    cd dsa-planet.srht.site/_site
+    tar -cvz . > ../../site.tar.gz
+- upload: |
+    acurl -f https://pages.sr.ht/publish/$site -Fcontent=@site.tar.gz
