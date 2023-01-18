@@ -1,7 +1,7 @@
-site_title: openSUSE Planet
-site_title_short: Planet
-site_description: Planet openSUSE site providing newest news from the openSUSE Project
-site_copyright: © 2011-2022 openSUSE contributors
+site_title: Planet DSA
+site_title_short: Planet DSA
+site_description: Site providing newest news from local and national DSA
+site_copyright: © Democratic Socialists of America
 
 search: Search
 categories: Categories
@@ -18,9 +18,9 @@ add_your_blog: Add your blog
 atom_feed: Atom Feed
 rss_feed: RSS 2.0 Feed
 
-welcome: Welcome to Planet openSUSE
+welcome: Welcome to Planet DSA
 # TRANSLATORS: Replace English with your language name in the translation
-welcome_lang: Welcome to English Planet openSUSE
+welcome_lang: Welcome to English Planet DSA
 
 subtitle: This is a feed aggregator that collects what the contributors to the $project are writing on their respective blogs
 subtitle_project: openSUSE Project
