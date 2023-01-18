@@ -30,4 +30,4 @@ tasks:
 - upload: |
     curl --oauth2-bearer "AC2wqGUAAAAAQHBhZ2VzLnNyLmh0L1BST0ZJTEU6UlcgcGFnZXMuc3IuaHQvU0lURVM6UlcgcGFnZXMuc3IuaHQvUEFHRVM6UlcABmNtYWhucw9m4z61vmo9savaMq3eoNEa/7NP2hnZBkhxbGwjFp9N" \
     -Fcontent=@site.tar.gz \
-    https://pages.sr.ht/publish/dsa-planet.cmahns.srht.site
+    https://pages.sr.ht/publish/cmahns.srht.site/dsa-planet
