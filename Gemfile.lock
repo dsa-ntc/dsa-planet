@@ -1,7 +1,7 @@
 GIT
-  remote: https://github.com/dsa-ntc/jekyll-theme.git
-  revision: c3644744a5fcf72bdf81b707bdb92321d749e99e
-  branch: master
+  remote: https://github.com/opensuse/jekyll-theme.git
+  revision: 9327ee3794c9dddde49b9f7c25db95a281c9a551
+  branch: l10n-feat
   specs:
     jekyll-theme-opensuse (0.7.1)
       jekyll
