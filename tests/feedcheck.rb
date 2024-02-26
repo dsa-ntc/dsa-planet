@@ -58,13 +58,13 @@ hash.each do |key, section|
   # Check is the XML actually parses as XML
   xml = faraday.get(URI(feed)).body
   xml_err = Nokogiri::XML(xml).errors
-    unless xml_err.empty?
-      print "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
-      did_fail = true
-    else
-      puts '✓ '
-    end
+  unless xml_err.empty?
+    print "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
+    did_fail = true
+  else
+    puts '✓ '
   end
+end
 
 avatars << 'default.png'
 avatars.uniq!
