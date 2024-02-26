@@ -34,11 +34,12 @@ hash.each do |key, section|
       unless File.file?("#{av_dir}/#{avatar}")
         print "✗\nAvatar not found: hackergotchi/#{avatar}"
         did_fail = true
+      else
+        print '✓ '
       end
       avatars << avatar
     end
   end
-  print '✓ '
   # Check if URLs return 200 status
   url_arr.each do |url|
     res = faraday.get(URI(url))
@@ -50,18 +51,20 @@ hash.each do |key, section|
     unless res.status.to_i == 200
       print error
       did_fail = true
+    else
+      print '✓ '
     end
   end
-  print '✓ '
   # Check is the XML actually parses as XML
   xml = faraday.get(URI(feed)).body
   xml_err = Nokogiri::XML(xml).errors
     unless xml_err.empty?
-    print "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
-    did_fail = true
+      print "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
+      did_fail = true
+    else
+      puts '✓ '
+    end
   end
-  puts '✓ '
-end
 
 avatars << 'default.png'
 avatars.uniq!
