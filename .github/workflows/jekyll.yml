@@ -5,6 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
   schedule:
     # * is a special character in YAML so you have to quote this string
     # We will pull once a day, UTC to start to not blow up our Github actions
