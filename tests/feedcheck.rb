@@ -10,6 +10,8 @@ av_dir = 'hackergotchi'
 
 avatars = []
 
+did_fail = false
+
 hash.each do |key, section|
   next unless section.is_a?(Hash)
 
@@ -26,7 +28,7 @@ hash.each do |key, section|
     else
       unless File.file?("#{av_dir}/#{avatar}")
         print "✗\nAvatar not found: hackergotchi/#{avatar}"
-        abort
+        did_fail = true
       end
       avatars << avatar
     end
@@ -38,11 +40,11 @@ hash.each do |key, section|
     error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
     if res.status.to_i.between?(300, 399) && res.headers.key?('location')
       print "#{error}\nTry using `#{res.headers['location']}` instead"
-      abort
+      did_fail = true
     end
     unless res.status.to_i == 200
       print error
-      abort
+      did_fail = true
     end
   end
   print '✓ '
@@ -51,7 +53,7 @@ hash.each do |key, section|
   xml_err = Nokogiri::XML(xml).errors
   unless xml_err.empty?
     print "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
-    abort
+    did_fail = true
   end
   puts '✓ '
 end
@@ -62,5 +64,9 @@ hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
 diff = (hackergotchis - avatars).sort
 unless diff.empty?
   print "There are unused files in hackergotchis:\n#{diff.join(', ')}"
+  did_fail = true
+end
+
+if did_fail
   abort
 end
