@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
-gem 'activerecord'#, '< 7.0'
+gem 'activerecord' # , '< 7.0'
 gem 'faraday'
 gem 'faraday-follow_redirects'
 gem 'jekyll'
@@ -12,6 +12,6 @@ gem 'pluto'
 gem 'pluto-models'
 gem 'rake'
 gem 'rss'
-gem 'webrick'
 gem 'rubocop', require: false
 gem 'rubocop-rake', require: false
+gem 'webrick'
