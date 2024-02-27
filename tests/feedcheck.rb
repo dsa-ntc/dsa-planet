@@ -129,7 +129,6 @@ def create_job_summary(error_messages)
 
   if ENV['CI']
     ENV['GITHUB_STEP_SUMMARY'] = job_summary_text
-    puts ENV['GITHUB_STEP_SUMMARY']
   else
     File.open("error-summary.md", "w") do |file|
       file.write job_summary_text
@@ -171,6 +170,7 @@ def main
 
   if did_any_fail
     create_job_summary(error_messages)
+    abort
   end
 end
 
