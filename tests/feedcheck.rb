@@ -112,27 +112,37 @@ def check_source(key, section, faraday)
   return [result.compact.join, did_fail], avatar
 end
 
-def error_handling(error_messages)
-    puts "Error Summary"
-    puts error_messages.compact
+def create_job_summary(error_messages)
+  job_summary = ["# Feed sources with errors\n"]
+  error_messages.each do |error_message|
+    error_message_parts = error_message.split('=>')
 
-    File.open("error-summary.md", "w") do |file|
-      file.write("# Feed sources with errors\n")
+    header = error_message_parts[0]&.strip.sub(/^:: /, '')
+    body = error_message_parts[1]&.strip
 
-      error_messages.compact.each do |error_message|
-        error_message_parts = error_message.split('=>')
-
-        header = error_message_parts[0]&.strip.sub(/^:: /, '')
-        body = error_message_parts[1]&.strip
-
-        if header && body
-          file.write("\n## #{header}\n")
-          file.write("\n#{body}\n")
-        end
-      end
+    if header && body
+      job_summary << "\n## #{header}\n"
+      job_summary << "\n#{body}\n"
     end
-    abort
   end
+  job_summary_text = job_summary.reduce(:+)
+
+  if ENV['CI']
+    ENV['GITHUB_STEP_SUMMARY'] = job_summary_text
+    puts ENV['GITHUB_STEP_SUMMARY']
+  else
+    File.open("error-summary.md", "w") do |file|
+      file.write job_summary_text
+    end
+  end
+end
+
+def error_handling(error_messages)
+  puts "Error Summary"
+  puts error_messages
+  create_job_summary(error_messages)
+  abort
+end
 
 def main
   faraday = initialize_faraday()
