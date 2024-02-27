@@ -26,3 +26,6 @@ jobs:
 
       - name: Check Feeds
         run: bundle exec rake test
+
+      - name: Save job summary
+        run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
