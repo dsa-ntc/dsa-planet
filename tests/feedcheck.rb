@@ -18,104 +18,98 @@ def initialize_faraday
 end
 
 def check_avatar(avatar, av_dir, faraday)
-  if not avatar
-    print "_ "
-    return false
-  end
-  if avatar.include? '//'
-    return check_url(avatar, faraday)
-  else
-    unless File.file?("#{av_dir}/#{avatar}")
-      puts "✗\nAvatar not found: hackergotchi/#{avatar}"
-      return true
+  result = ["_ ", false]
+
+  if avatar
+    if avatar.include? '//'
+      result = check_url(avatar, faraday)
+    else
+      unless File.file?("#{av_dir}/#{avatar}")
+        result = ["✗\nAvatar not found: hackergotchi/#{avatar} ", true]
+      else
+        result = ['✓ ', false]
+      end
     end
   end
-
-  print '✓ '
-
-  false
+  result
 end
 
 def check_url(url, faraday)
+  error_message = "✗ "
+
   begin
     res = faraday.get(URI(url))
   rescue Faraday::ConnectionFailed
-    puts "✗\nConnection Failure when trying to access `#{url}`"
-    return true
+    return ["#{error_message}Connection Failure when trying to access '#{url}' ", true]
   rescue Faraday::SSLError
-    puts "✗\nSSL Error when trying to access `#{url}`"
-    return true
+    return ["#{error_message}SSL Error when trying to access '#{url}' ", true]
   end
 
-  error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
+  error = "#{error_message}Non successful status code #{res.status} when trying to access '#{url}' "
+  return ["#{error}\nTry using '#{res.headers['location']}' instead", true] if res.status.to_i.between?(300, 399) && res.headers.key?('location')
 
-  if res.status.to_i.between?(300, 399) && res.headers.key?('location')
-    puts "#{error}\nTry using `#{res.headers['location']}` instead"
-    return true
-  end
+  return [error, true] unless res.status.to_i == 200
 
-  unless res.status.to_i == 200
-    puts error
-    return true
-  end
-
-  print '✓ '
-
-  false
+  ['✓ ', false]
 end
 
 def check_urls(url_arr, faraday)
-  url_arr.any? { |url| check_url(url, faraday) }
+  results = url_arr.map { |url| check_url(url, faraday) }
+  [results.map(&:first).join, results.any? { |r| r.last }]
 end
 
 def parse_xml(feed, faraday)
+  result = ["✗ ", true]
+
   begin
     xml = faraday.get(URI(feed))
   rescue Faraday::ConnectionFailed
-    puts "✗\nConnection Failure when trying to read XML from `#{feed}`"
-    return true
+    return ["#{result.first}Connection Failure when trying to read XML from '#{feed}' ", true]
   rescue Faraday::SSLError
-    puts "✗\nSSL Error when trying to read XML from `#{feed}`"
-    return true
+    return ["#{result.first}SSL Error when trying to read XML from '#{feed}' ", true]
+  else
+    xml_err = Nokogiri::XML(xml.body).errors
+    unless xml_err.empty?
+      return ["#{result.first}Unusable XML syntax: #{feed}\n#{xml_err} ", true]
+    end
+    ['✓ ', false]
   end
-  xml_err = Nokogiri::XML(xml.body).errors
-
-  unless xml_err.empty?
-    puts "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
-    return true
-  end
-
-  puts '✓ '
-
-  false
 end
 
 def check_unused_files(av_dir, avatars)
   hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
   diff = (hackergotchis - avatars)
 
-  unless diff.empty?
-    puts "There are unused files in hackergotchis:\n#{diff.join(', ')}"
-    return true
+  if diff.empty?
+    [nil, false]
+  else
+    ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
   end
-
-  false
 end
 
 def check_source(key, section, faraday)
   did_fail = false
+  result = []
   avatar = section['avatar'] if section.key?('avatar')
 
-  print ":: #{key} =>  "
-  did_fail = check_avatar(avatar, AV_DIR, faraday)
+  result << ":: #{key} =>  "
+  avatar_result = check_avatar(avatar, AV_DIR, faraday)
+  result << avatar_result.first
+  did_fail |= avatar_result.last
 
   link = section['link'] if section.key?('link')
   feed = section['feed'] if section.key?('feed')
-  url_arr = [link, feed]
-  did_fail = check_urls(url_arr, faraday) || did_fail
-  did_fail = parse_xml(feed, faraday) || did_fail
+  url_result = check_urls([link, feed], faraday)
+  result << url_result.first
+  did_fail |= url_result.last
 
-  return did_fail, avatar
+  unless url_result.last
+    xml_result = parse_xml(feed, faraday)
+    result << xml_result.first
+    did_fail |= xml_result.last
+  end
+
+  return [result.compact.join, did_fail], avatar
 end
 
 def main
@@ -123,27 +117,35 @@ def main
   planet_srcs = INI.load_file(INI_FILE)
 
   did_any_fail = false
+  error_messages = []
   avatars = []
 
   queue = Queue.new
   planet_srcs.each do |key, section|
     queue.push([key, section])
   end
-  workers = (0...1).map do
+  workers = (0...3).map do
     Thread.new do
       until queue.empty?
         key, section = queue.pop
         next unless section.is_a?(Hash)
 
-        did_fail, avatar = check_source(key, section, faraday)
+        res, avatar = check_source(key, section, faraday)
         avatars << avatar
-        did_any_fail ||= did_fail
+        puts res.first if res.first
+        error_messages << res.first if res.last
+        did_any_fail ||= res.last
       end
     end
   end
   workers.each(&:join)
 
-  did_any_fail = check_unused_files(AV_DIR, avatars) || did_any_fail
+  unused_files_result = check_unused_files(AV_DIR, avatars)
+  error_messages << unused_files_result.first if unused_files_result.last
+  did_any_fail ||= unused_files_result.last
+
+  puts "Error Summary"
+  puts error_messages.compact
   abort if did_any_fail
 end
 
