@@ -5,8 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
-
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
-      uses: docker://ruby:3.1
+      uses: docker://ruby:3.3
       env:
         BUNDLE_PATH: .bundle
       with:
@@ -25,7 +24,7 @@ jobs:
         args: install -j=4
 
     - name: Run the tests
-      uses: docker://ruby:3.1
+      uses: docker://ruby:3.3
       env:
         BUNDLE_PATH: .bundle
         LANG: en_US.UTF-8
