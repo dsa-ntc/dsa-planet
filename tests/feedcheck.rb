@@ -6,75 +6,112 @@ require 'iniparser'
 require 'nokogiri'
 require 'uri'
 
-hash = INI.load_file('planet.ini')
-av_dir = 'hackergotchi'
+INI_FILE = 'planet.ini'
+AV_DIR = 'hackergotchi'
 
-faraday = Faraday.new() do |f|
-  f.response :follow_redirects # use Faraday::FollowRedirects::Middleware
-  f.adapter Faraday.default_adapter
+def initialize_faraday
+  Faraday.new do |f|
+    f.response :follow_redirects
+    f.adapter :net_http
+  end
 end
 
-avatars = []
-did_fail = false
-
-hash.each do |key, section|
-  next unless section.is_a?(Hash)
-
-  print ":: #{key} =>  "
-  feed = section['feed'] if section.key?('feed')
-  avatar = section['avatar'] if section.key?('avatar')
-  url_arr = []
-  url_arr << section['link'] if section.key?('link')
-  url_arr << feed if feed
-  # Check if avatar exists
-  if avatar
-    if avatar.include? '//'
-      url_arr << avatar
-    else
-      unless File.file?("#{av_dir}/#{avatar}")
-        puts "✗\nAvatar not found: hackergotchi/#{avatar}"
-        did_fail = true
-      else
-        print '✓ '
-      end
-      avatars << avatar
+def check_avatar(avatar, av_dir, faraday)
+  if not avatar
+    print "_ "
+    return false
+  end
+  if avatar.include? '//'
+    return check_url(avatar, faraday)
+  else
+    unless File.file?("#{av_dir}/#{avatar}")
+      puts "✗\nAvatar not found: hackergotchi/#{avatar}"
+      return true
     end
   end
-  # Check if URLs return 200 status
-  url_arr.each do |url|
-    res = faraday.get(URI(url))
-    error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
-    if res.status.to_i.between?(300, 399) && res.headers.key?('location')
-      puts "#{error}\nTry using `#{res.headers['location']}` instead"
-      did_fail = true
-    end
-    unless res.status.to_i == 200
-      puts error
-      did_fail = true
-    else
-      print '✓ '
-    end
+
+  print '✓ '
+
+  false
+end
+
+def check_url(url, faraday)
+  res = faraday.get(URI(url))
+
+  error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
+
+  if res.status.to_i.between?(300, 399) && res.headers.key?('location')
+    puts "#{error}\nTry using `#{res.headers['location']}` instead"
+    return true
   end
-  # Check is the XML actually parses as XML
+
+  unless res.status.to_i == 200
+    puts error
+    return true
+  end
+
+  print '✓ '
+
+  false
+end
+
+def check_urls(url_arr, faraday)
+  url_arr.any? { |url| check_url(url, faraday) }
+end
+
+def parse_xml(feed, faraday)
   xml = faraday.get(URI(feed)).body
   xml_err = Nokogiri::XML(xml).errors
+
   unless xml_err.empty?
     puts "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
-    did_fail = true
-  else
-    puts '✓ '
+    return true
+  end
+
+  puts '✓ '
+
+  false
+end
+
+def check_unused_files(av_dir, avatars)
+  hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
+  diff = (hackergotchis - avatars)
+
+  unless diff.empty?
+    puts "There are unused files in hackergotchis:\n#{diff.join(', ')}"
+    return true
+  end
+
+  false
+end
+
+def main
+  faraday = initialize_faraday()
+  planet_srcs = INI.load_file(INI_FILE)
+
+  did_fail = false
+  avatars = []
+
+  planet_srcs.each do |key, section|
+    next unless section.is_a?(Hash)
+
+    avatar = section['avatar'] if section.key?('avatar')
+    avatars << avatar
+
+    print ":: #{key} =>  "
+    did_fail = check_avatar(avatar, AV_DIR, faraday)
+
+    link = section['link'] if section.key?('link')
+    feed = section['feed'] if section.key?('feed')
+    url_arr = [link, feed]
+    did_fail = check_urls(url_arr, faraday) || did_fail
+    did_fail = parse_xml(feed, faraday) || did_fail
+  end
+
+  did_fail = check_unused_files(AV_DIR, avatars) || did_fail
+  if did_fail
+    abort
   end
 end
 
-avatars << 'default.png'
-avatars.uniq!
-hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
-diff = (hackergotchis - avatars).sort
-unless diff.empty?
-  puts "There are unused files in hackergotchis:\n#{diff.join(', ')}"
-  did_fail = true
-end
-
-if did_fail == true
-  abort
-end
+main()
