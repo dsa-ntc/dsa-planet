@@ -20,4 +20,4 @@ Alternatively you can send an email to
 with all the mandatory information listed above
 
 Don't want to wait or want to help with something else? You can submit code yourself!
-Instructions located in [CONTRIBUTING.md](https://github.com/dsa-ntc/dsa-planet/blob/master/CONTRIBUTING.md).
+Instructions located in [CONTRIBUTING.md](CONTRIBUTING.md).

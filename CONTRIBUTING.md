@@ -4,10 +4,10 @@
 
 If you don't want to wait for a member of the NTC to add your feed,
 you can bypass the issues template to add it directly to the file
-[planet.ini](https://github.com/dsa-ntc/dsa-planet/blob/master/planet.ini).
+[planet.ini](planet.ini).
 
 1. Fork this repository
-2. Edit [planet.ini](https://github.com/dsa-ntc/dsa-planet/blob/master/planet.ini) and add:
+2. Edit [planet.ini](planet.ini) and add:
 
   ```ini
   [id]         # replace id with your feed's unique identifier (a-z0-9-_)   (eg. dsa-chapter)
@@ -31,7 +31,7 @@ you can bypass the issues template to add it directly to the file
    email     = dsa@example.com
   ```
 
-3. Upload your avatar to [hackergotchi directory](https://github.com/dsa-ntc/dsa-planet/blob/master/hackergotchi)
+3. Upload your avatar to [hackergotchi directory](hackergotchi)
   * Supported formats: `jpg`, `png`, (some) `svg` files, and `webp`. When in doubt, just use your chapter's Twitter or Facebook avatar. Webp is preferred as it speeds up load times.
 4. Open a Pull Request against this repository.
 
