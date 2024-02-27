@@ -167,10 +167,10 @@ def main
   end
 
   if did_any_fail
-    File.delete('error-summary.md') if File.exist?('error-summary.md')
     create_job_summary(error_messages)
     abort
   else
+    File.delete('error-summary.md') if File.exist?('error-summary.md')
     puts "All feeds passed checks!"
   end
 end
