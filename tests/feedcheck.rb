@@ -137,13 +137,6 @@ def create_job_summary(error_messages)
   end
 end
 
-def error_handling(error_messages)
-  puts "Error Summary"
-  puts error_messages
-  create_job_summary(error_messages)
-  abort
-end
-
 def main
   faraday = initialize_faraday()
   planet_srcs = INI.load_file(INI_FILE)
@@ -177,7 +170,7 @@ def main
   did_any_fail ||= unused_files_result.last
 
   if did_any_fail
-    error_handling(error_messages)
+    create_job_summary(error_messages)
   end
 end
 
