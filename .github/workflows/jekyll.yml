@@ -31,6 +31,12 @@ jobs:
       - name: Install Dependencies
         run: bundler install
 
+      - name: Configure Feed Cache
+        uses: actions/cache@v4
+        with:
+          path: planet.db
+          key: cache-feed-sources-${{ hashFiles('Gemfile.lock') }}
+
       - name: Get Feed Content
         run: bundler exec rake
 
@@ -39,7 +45,7 @@ jobs:
 
       - name: Build Jekyll Site
         run: bundler exec jekyll build
-      
+
       - uses: actions/upload-pages-artifact@v3
 
   deploy:
