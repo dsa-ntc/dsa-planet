@@ -163,8 +163,7 @@ def main
   if did_any_fail
     create_job_summary(error_messages)
     abort
-  end
-  create_job_summary([":: All Feeds => No errors"])
+  else
 end
 
 main()
