@@ -62,6 +62,7 @@ def parse_xml(feed, faraday)
 end
 
 def check_unused_files(av_dir, avatars)
+  avatars << 'default.webp'
   hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
   diff = (hackergotchis - avatars)
 
