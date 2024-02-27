@@ -138,8 +138,11 @@ def main
 
   queue = Queue.new
   planet_srcs.each do |key, section|
-    queue.push([key, section])
+    if ARGV.empty? || ARGV.include?(key)
+      queue.push([key, section])
+    end
   end
+
   workers = (0...3).map do
     Thread.new do
       until queue.empty?
