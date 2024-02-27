@@ -13,23 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      uses: docker://ruby:3.3
-      env:
-        BUNDLE_PATH: .bundle
-      with:
-        entrypoint: bundle
-        args: install -j=4
+      - name: Install Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
-    - name: Run the tests
-      uses: docker://ruby:3.3
-      env:
-        BUNDLE_PATH: .bundle
-        LANG: en_US.UTF-8
-        LANGUAGE: en_US.UTF-8
-        LC_ALL: C.UTF-8
-      with:
-        entrypoint: bundle
-        args: exec rake test
+      - name: Build Site
+        run: |
+          bundler install
+          bundle exec rake test
