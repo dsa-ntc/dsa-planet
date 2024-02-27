@@ -123,14 +123,8 @@ def create_job_summary(error_messages)
       job_summary << "\n#{body}\n"
     end
   end
-  job_summary_text = job_summary.reduce(:+)
-
-  if ENV['CI']
-    ENV['GITHUB_STEP_SUMMARY'] = job_summary_text
-  else
-    File.open("error-summary.md", "w") do |file|
-      file.write job_summary_text
-    end
+  File.open("error-summary.md", "w") do |file|
+    file.write job_summary.reduce(:+)
   end
 end
 
@@ -170,6 +164,7 @@ def main
     create_job_summary(error_messages)
     abort
   end
+  create_job_summary([":: All Feeds => No errors"])
 end
 
 main()
