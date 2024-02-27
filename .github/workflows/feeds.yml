@@ -21,7 +21,8 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Build Site
-        run: |
-          bundler install
-          bundle exec rake test
+      - name: Install Dependencies
+        run: bundler install
+
+      - name: Check Feeds
+        run: bundle exec rake test
