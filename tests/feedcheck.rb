@@ -4,6 +4,7 @@ require 'faraday'
 require 'faraday/follow_redirects'
 require 'iniparser'
 require 'nokogiri'
+require 'thread'
 require 'uri'
 
 INI_FILE = 'planet.ini'
@@ -36,7 +37,12 @@ def check_avatar(avatar, av_dir, faraday)
 end
 
 def check_url(url, faraday)
-  res = faraday.get(URI(url))
+  begin
+    res = faraday.get(URI(url))
+  rescue Faraday::ConnectionFailed
+    puts "✗\nConnection Failure when trying to access `#{url}`"
+    return true
+  end
 
   error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
 
@@ -60,8 +66,13 @@ def check_urls(url_arr, faraday)
 end
 
 def parse_xml(feed, faraday)
-  xml = faraday.get(URI(feed)).body
-  xml_err = Nokogiri::XML(xml).errors
+  begin
+    xml = faraday.get(URI(feed))
+  rescue Faraday::ConnectionFailed
+    puts "✗\nConnection Failure when trying to read XML from `#{feed}`"
+    return true
+  end
+  xml_err = Nokogiri::XML(xml.body).errors
 
   unless xml_err.empty?
     puts "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
@@ -85,33 +96,49 @@ def check_unused_files(av_dir, avatars)
   false
 end
 
+def check_source(key, section, faraday)
+  did_fail = false
+  avatar = section['avatar'] if section.key?('avatar')
+
+  print ":: #{key} =>  "
+  did_fail = check_avatar(avatar, AV_DIR, faraday)
+
+  link = section['link'] if section.key?('link')
+  feed = section['feed'] if section.key?('feed')
+  url_arr = [link, feed]
+  did_fail = check_urls(url_arr, faraday) || did_fail
+  did_fail = parse_xml(feed, faraday) || did_fail
+
+  return did_fail, avatar
+end
+
 def main
   faraday = initialize_faraday()
   planet_srcs = INI.load_file(INI_FILE)
 
-  did_fail = false
+  did_any_fail = false
   avatars = []
 
+  queue = Queue.new
   planet_srcs.each do |key, section|
-    next unless section.is_a?(Hash)
-
-    avatar = section['avatar'] if section.key?('avatar')
-    avatars << avatar
-
-    print ":: #{key} =>  "
-    did_fail = check_avatar(avatar, AV_DIR, faraday)
-
-    link = section['link'] if section.key?('link')
-    feed = section['feed'] if section.key?('feed')
-    url_arr = [link, feed]
-    did_fail = check_urls(url_arr, faraday) || did_fail
-    did_fail = parse_xml(feed, faraday) || did_fail
+    queue.push([key, section])
   end
+  workers = (0...1).map do
+    Thread.new do
+      until queue.empty?
+        key, section = queue.pop
+        next unless section.is_a?(Hash)
 
-  did_fail = check_unused_files(AV_DIR, avatars) || did_fail
-  if did_fail
-    abort
+        did_fail, avatar = check_source(key, section, faraday)
+        avatars << avatar
+        did_any_fail ||= did_fail
+      end
+    end
   end
+  workers.each(&:join)
+
+  did_any_fail = check_unused_files(AV_DIR, avatars) || did_any_fail
+  abort if did_any_fail
 end
 
 main()
