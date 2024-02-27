@@ -111,7 +111,7 @@ def check_source(key, section, faraday)
 end
 
 def create_job_summary(error_messages)
-  job_summary = ["# Feed sources with errors\n"]
+  job_summary = ["# Feed Sources\n"]
   error_messages.each do |error_message|
     error_message_parts = error_message.split('=>')
 
@@ -163,7 +163,7 @@ def main
   if did_any_fail
     create_job_summary(error_messages)
     abort
-  else
+  end
 end
 
 main()
