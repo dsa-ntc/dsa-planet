@@ -163,7 +163,7 @@ def main
   unused_files_result = check_unused_files(AV_DIR, avatars)
   if unused_files_result.last
     error_messages << unused_files_result.first
-    puts "WARNING:\n#{unused_files_result.first}"
+    puts "[WARNING] #{unused_files_result.first}"
   end
 
   if did_any_fail
