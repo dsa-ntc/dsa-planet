@@ -32,7 +32,7 @@ hash.each do |key, section|
       url_arr << avatar
     else
       unless File.file?("#{av_dir}/#{avatar}")
-        print "✗\nAvatar not found: hackergotchi/#{avatar}"
+        puts "✗\nAvatar not found: hackergotchi/#{avatar}"
         did_fail = true
       else
         print '✓ '
@@ -45,11 +45,11 @@ hash.each do |key, section|
     res = faraday.get(URI(url))
     error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
     if res.status.to_i.between?(300, 399) && res.headers.key?('location')
-      print "#{error}\nTry using `#{res.headers['location']}` instead"
+      puts "#{error}\nTry using `#{res.headers['location']}` instead"
       did_fail = true
     end
     unless res.status.to_i == 200
-      print error
+      puts error
       did_fail = true
     else
       print '✓ '
@@ -59,7 +59,7 @@ hash.each do |key, section|
   xml = faraday.get(URI(feed)).body
   xml_err = Nokogiri::XML(xml).errors
   unless xml_err.empty?
-    print "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
+    puts "✗\nUnusable XML syntax: #{feed}\n#{xml_err}"
     did_fail = true
   else
     puts '✓ '
@@ -71,7 +71,7 @@ avatars.uniq!
 hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
 diff = (hackergotchis - avatars).sort
 unless diff.empty?
-  print "There are unused files in hackergotchis:\n#{diff.join(', ')}"
+  puts "There are unused files in hackergotchis:\n#{diff.join(', ')}"
   did_fail = true
 end
 
