@@ -26,12 +26,7 @@ jobs:
 
       - name: Check Feeds
         run: bundle exec rake test
-        continue-on-error: true
 
       - name: Save Job Summary
-        if: ${{ hashFiles('error-summary.md') != '' }}
+        if: failure()
         run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
-
-      - name: Set Status
-        if: ${{ failure() }}
-        run: exit 1
