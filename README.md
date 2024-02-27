@@ -22,7 +22,7 @@ form](https://github.com/dsa-ntc/dsa-planet/issues/new?assignees=&labels=additio
   feed     = # url to your rss/atom feed                                (eg. https://dsausa.org/feed)
   link     = # link to the main page of your website                    (eg. https://dsausa.org)
   location = # ISO_639 language code (may include ISO 3166 country code)(eg. en)
-  avatar   = # filename or url of your avatar in hackergotchi dir       (eg. example.png)
+  avatar   = # filename or url of your avatar in hackergotchi dir       (eg. example.webp)
   email    = # (optional) your contact email                            (eg. dsa@example.com)
 ```
 An example you may copy and paste is here: 
@@ -32,7 +32,7 @@ An example you may copy and paste is here:
  feed      = https://www.example.com/feed/
  link      = https://www.example.com
  location  = en
- avatar    = example.png
+ avatar    = example.webp
  email     = dsa@example.com
 ```
 * Upload your avatar to [hackergotchi directory](https://github.com/dsa-ntc/dsa-planet/blob/master/hackergotchi)
