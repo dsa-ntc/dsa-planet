@@ -79,9 +79,10 @@ def check_unused_files(av_dir, avatars)
   hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
   diff = (hackergotchis - avatars)
 
-  if diff.empty?
+  if diff.empty? || avatars.empty?
     return [nil, false]
   end
+
   ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
 end
 
@@ -160,13 +161,18 @@ def main
   workers.each(&:join)
 
   unused_files_result = check_unused_files(AV_DIR, avatars)
-  error_messages << unused_files_result.first if unused_files_result.last
-  did_any_fail ||= unused_files_result.last
+  if unused_files_result.last
+    error_messages << unused_files_result.first
+    puts "WARNING:\n#{unused_files_result.first}"
+  end
 
   if did_any_fail
+    File.delete('error-summary.md') if File.exist?('error-summary.md')
     create_job_summary(error_messages)
     abort
-  File.delete('error-summary.md') if File.exist?('error-summary.md')
+  else
+    puts "All feeds passed checks!"
+  end
 end
 
 main()
