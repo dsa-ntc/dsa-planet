@@ -148,6 +148,7 @@ def main
     puts "Error Summary"
     puts error_messages.compact
     abort
+  end
 end
 
 main()
