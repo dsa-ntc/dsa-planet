@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 gem 'activerecord'#, '< 7.0'
 gem 'faraday'
+gem 'faraday-follow_redirects'
 gem 'jekyll'
 gem 'jekyll-paginate-v2'
 gem 'jekyll-theme-opensuse', git: 'https://github.com/dsa-ntc/jekyll-theme.git', branch: 'master'
