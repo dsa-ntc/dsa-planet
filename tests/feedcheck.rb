@@ -144,9 +144,10 @@ def main
   error_messages << unused_files_result.first if unused_files_result.last
   did_any_fail ||= unused_files_result.last
 
-  puts "Error Summary"
-  puts error_messages.compact
-  abort if did_any_fail
+  if did_any_fail
+    puts "Error Summary"
+    puts error_messages.compact
+    abort
 end
 
 main()
