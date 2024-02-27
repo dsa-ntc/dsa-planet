@@ -10,7 +10,7 @@ INI_FILE = 'planet.ini'
 AV_DIR = 'hackergotchi'
 
 def check_avatar(avatar, av_dir, faraday)
-  ['_ ', false] unless avatar
+  return ['_ ', false] unless avatar
 
   [check_url(avatar, faraday)] if avatar.include? '//'
   ["✗\nAvatar not found: hackergotchi/#{avatar} ", true] unless File.file?("#{av_dir}/#{avatar}")
@@ -24,14 +24,14 @@ def check_url(url, faraday)
   begin
     res = faraday.get(URI(url))
   rescue Faraday::ConnectionFailed
-    ["#{error_message}Connection Failure when trying to access '#{url}' ", true]
+    return ["#{error_message}Connection Failure when trying to access '#{url}' ", true]
   rescue Faraday::SSLError
-    ["#{error_message}SSL Error when trying to access '#{url}' ", true]
+    return ["#{error_message}SSL Error when trying to access '#{url}' ", true]
   end
 
   error = "#{error_message}Non successful status code #{res.status} when trying to access '#{url}' "
   if res.status.to_i.between?(300, 399) && res.headers.key?('location')
-    ["#{error}\nTry using '#{res.headers['location']}' instead", true]
+    return ["#{error}\nTry using '#{res.headers['location']}' instead", true]
   end
 
   [error, true] unless res.status.to_i == 200
