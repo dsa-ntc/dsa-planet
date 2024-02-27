@@ -112,6 +112,28 @@ def check_source(key, section, faraday)
   return [result.compact.join, did_fail], avatar
 end
 
+def error_handling(error_messages)
+    puts "Error Summary"
+    puts error_messages.compact
+
+    File.open("error-summary.md", "w") do |file|
+      file.write("# Feed sources with errors\n")
+
+      error_messages.compact.each do |error_message|
+        error_message_parts = error_message.split('=>')
+
+        header = error_message_parts[0]&.strip.sub(/^:: /, '')
+        body = error_message_parts[1]&.strip
+
+        if header && body
+          file.write("\n## #{header}\n")
+          file.write("\n#{body}\n")
+        end
+      end
+    end
+    abort
+  end
+
 def main
   faraday = initialize_faraday()
   planet_srcs = INI.load_file(INI_FILE)
@@ -145,9 +167,7 @@ def main
   did_any_fail ||= unused_files_result.last
 
   if did_any_fail
-    puts "Error Summary"
-    puts error_messages.compact
-    abort
+    error_handling(error_messages)
   end
 end
 
