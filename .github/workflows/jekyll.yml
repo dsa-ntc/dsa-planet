@@ -2,9 +2,17 @@ name: Jekyll CI
 
 'on':
   push:
+    paths-ignore:
+      - '*.md'
+      - ".github/workflows/feeds.yml"
+      - "tests/feedcheck.rb"
     branches:
       - master
   pull_request:
+    paths-ignore:
+      - '*.md'
+      - ".github/workflows/feeds.yml"
+      - "tests/feedcheck.rb"
     branches:
       - master
   workflow_dispatch:

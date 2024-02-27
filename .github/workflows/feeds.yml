@@ -2,9 +2,21 @@ name: Jekyll Feed Tests
 
 'on':
   push:
+    paths:
+      - ".github/workflows/feeds.yml"
+      - planet.ini
+      - tests/feedcheck.rb
+      - Gemfile
+      - Gemfile.lock
     branches:
       - master
   pull_request:
+    paths:
+      - ".github/workflows/feeds.yml"
+      - planet.ini
+      - tests/feedcheck.rb
+      - Gemfile
+      - Gemfile.lock
     branches:
       - master
   workflow_dispatch: null
