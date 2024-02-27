@@ -33,5 +33,5 @@ jobs:
         run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
 
       - name: Set Status
-        if: ${{ hashFiles('error-summary.md') != '' }}
-        run: exit
+        if: ${{ failure() }}
+        run: exit 1
