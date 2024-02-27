@@ -42,6 +42,9 @@ def check_url(url, faraday)
   rescue Faraday::ConnectionFailed
     puts "✗\nConnection Failure when trying to access `#{url}`"
     return true
+  rescue Faraday::SSLError
+    puts "✗\nSSL Error when trying to access `#{url}`"
+    return true
   end
 
   error = "✗\nNon successful status code #{res.status} when trying to access `#{url}`"
@@ -70,6 +73,9 @@ def parse_xml(feed, faraday)
     xml = faraday.get(URI(feed))
   rescue Faraday::ConnectionFailed
     puts "✗\nConnection Failure when trying to read XML from `#{feed}`"
+    return true
+  rescue Faraday::SSLError
+    puts "✗\nSSL Error when trying to read XML from `#{feed}`"
     return true
   end
   xml_err = Nokogiri::XML(xml.body).errors
