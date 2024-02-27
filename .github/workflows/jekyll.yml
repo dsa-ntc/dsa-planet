@@ -28,12 +28,18 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Build Site
-        run: |
-          bundler install
-          bundler exec rake build
-          bundler exec jekyll serve
+      - name: Install Dependencies
+        run: bundler install
 
+      - name: Get Feed Content
+        run: bundler exec rake
+
+      - name: Proccess Feed Content
+        run: bundler exec rake build
+
+      - name: Build Jekyll Site
+        run: bundler exec jekyll build
+      
       - uses: actions/upload-pages-artifact@v3
 
   deploy:
