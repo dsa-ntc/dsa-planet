@@ -163,7 +163,7 @@ def main
   if did_any_fail
     create_job_summary(error_messages)
     abort
-  end
+  File.delete('error-summary.md') if File.exist?('error-summary.md')
 end
 
 main()
