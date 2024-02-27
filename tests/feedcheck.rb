@@ -11,7 +11,7 @@ INI_FILE = 'planet.ini'
 AV_DIR = 'hackergotchi'
 
 def initialize_faraday
-  Faraday.new(request: {open_timeout: 5}) do |f|
+  Faraday.new(request: {open_timeout: 10}) do |f|
     f.response :follow_redirects
     f.adapter :net_http
   end
@@ -24,10 +24,9 @@ def check_avatar(avatar, av_dir, faraday)
     if avatar.include? '//'
       result = check_url(avatar, faraday)
     else
+      result = ['✓ ', false]
       unless File.file?("#{av_dir}/#{avatar}")
         result = ["✗\nAvatar not found: hackergotchi/#{avatar} ", true]
-      else
-        result = ['✓ ', false]
       end
     end
   end
@@ -81,18 +80,16 @@ def check_unused_files(av_dir, avatars)
   diff = (hackergotchis - avatars)
 
   if diff.empty?
-    [nil, false]
-  else
-    ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
+    return [nil, false]
   end
+  ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
 end
 
 def check_source(key, section, faraday)
   did_fail = false
-  result = []
+  result = [":: #{key} =>  "]
   avatar = section['avatar'] if section.key?('avatar')
 
-  result << ":: #{key} =>  "
   avatar_result = check_avatar(avatar, AV_DIR, faraday)
   result << avatar_result.first
   did_fail |= avatar_result.last
@@ -103,6 +100,7 @@ def check_source(key, section, faraday)
   result << url_result.first
   did_fail |= url_result.last
 
+  # Only check XML validity if URL checked out ok
   unless url_result.last
     xml_result = parse_xml(feed, faraday)
     result << xml_result.first
