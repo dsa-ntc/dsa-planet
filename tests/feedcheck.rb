@@ -11,7 +11,7 @@ INI_FILE = 'planet.ini'
 AV_DIR = 'hackergotchi'
 
 def initialize_faraday
-  Faraday.new do |f|
+  Faraday.new(request: {open_timeout: 5}) do |f|
     f.response :follow_redirects
     f.adapter :net_http
   end
