@@ -1,17 +1,17 @@
 name: Jekyll Feed Tests
 
-on:
+'on':
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
-  workflow_dispatch:
+    branches:
+      - master
+  workflow_dispatch: null
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
