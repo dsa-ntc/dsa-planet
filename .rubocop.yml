@@ -3,3 +3,6 @@ require:
 
 Layout/LineLength:
     Max: 120
+
+AllCops:
+    TargetRubyVersion: 3.2

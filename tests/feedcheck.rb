@@ -10,17 +10,12 @@ INI_FILE = 'planet.ini'
 AV_DIR = 'hackergotchi'
 
 def check_avatar(avatar, av_dir, faraday)
-  result = ['_ ', false]
+  ['_ ', false] unless avatar
 
-  if avatar
-    if avatar.include? '//'
-      result = check_url(avatar, faraday)
-    else
-      result = ['✓ ', false]
-      result = ["✗\nAvatar not found: hackergotchi/#{avatar} ", true] unless File.file?("#{av_dir}/#{avatar}")
-    end
-  end
-  result
+  [check_url(avatar, faraday)] if avatar.include? '//'
+  ["✗\nAvatar not found: hackergotchi/#{avatar} ", true] unless File.file?("#{av_dir}/#{avatar}")
+
+  ['✓ ', false]
 end
 
 def check_url(url, faraday)
@@ -29,17 +24,17 @@ def check_url(url, faraday)
   begin
     res = faraday.get(URI(url))
   rescue Faraday::ConnectionFailed
-    return ["#{error_message}Connection Failure when trying to access '#{url}' ", true]
+    ["#{error_message}Connection Failure when trying to access '#{url}' ", true]
   rescue Faraday::SSLError
-    return ["#{error_message}SSL Error when trying to access '#{url}' ", true]
+    ["#{error_message}SSL Error when trying to access '#{url}' ", true]
   end
 
   error = "#{error_message}Non successful status code #{res.status} when trying to access '#{url}' "
   if res.status.to_i.between?(300, 399) && res.headers.key?('location')
-    return ["#{error}\nTry using '#{res.headers['location']}' instead", true]
+    ["#{error}\nTry using '#{res.headers['location']}' instead", true]
   end
 
-  return [error, true] unless res.status.to_i == 200
+  [error, true] unless res.status.to_i == 200
 
   ['✓ ', false]
 end
@@ -58,19 +53,19 @@ def parse_xml(feed, faraday)
     ["#{result.first}Connection Failure when trying to read XML from '#{feed}' ", true]
   rescue Faraday::SSLError
     ["#{result.first}SSL Error when trying to read XML from '#{feed}' ", true]
-  else
-    xml_err = Nokogiri::XML(xml.body).errors
-    return ["#{result.first}Unusable XML syntax: #{feed}\n#{xml_err} ", true] unless xml_err.empty?
-
-    ['✓ ', false]
   end
+
+  xml_err = Nokogiri::XML(xml.body).errors
+  ["#{result.first}Unusable XML syntax: #{feed}\n#{xml_err} ", true] unless xml_err.empty?
+
+  ['✓ ', false]
 end
 
 def check_unused_files(av_dir, avatars)
   hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
   diff = (hackergotchis - avatars)
 
-  return [nil, false] if diff.empty? || avatars.empty?
+  [nil, false] if diff.empty? || avatars.empty?
 
   ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
 end
@@ -102,6 +97,7 @@ end
 
 def create_job_summary(error_messages)
   job_summary = ['# Feed Sources\n']
+
   error_messages.each do |error_message|
     error_message_parts = error_message.split('=>')
 
@@ -113,6 +109,7 @@ def create_job_summary(error_messages)
       job_summary << "\n#{body}\n"
     end
   end
+
   File.open('error-summary.md', 'w') do |file|
     file.write job_summary.reduce(:+)
   end
