@@ -4,37 +4,27 @@ require 'faraday'
 require 'faraday/follow_redirects'
 require 'iniparser'
 require 'nokogiri'
-require 'thread'
 require 'uri'
 
 INI_FILE = 'planet.ini'
 AV_DIR = 'hackergotchi'
 
-def initialize_faraday
-  Faraday.new(request: {open_timeout: 10}) do |f|
-    f.response :follow_redirects
-    f.adapter :net_http
-  end
-end
-
 def check_avatar(avatar, av_dir, faraday)
-  result = ["_ ", false]
+  result = ['_ ', false]
 
   if avatar
     if avatar.include? '//'
       result = check_url(avatar, faraday)
     else
       result = ['✓ ', false]
-      unless File.file?("#{av_dir}/#{avatar}")
-        result = ["✗\nAvatar not found: hackergotchi/#{avatar} ", true]
-      end
+      result = ["✗\nAvatar not found: hackergotchi/#{avatar} ", true] unless File.file?("#{av_dir}/#{avatar}")
     end
   end
   result
 end
 
 def check_url(url, faraday)
-  error_message = "✗ "
+  error_message = '✗ '
 
   begin
     res = faraday.get(URI(url))
@@ -45,7 +35,9 @@ def check_url(url, faraday)
   end
 
   error = "#{error_message}Non successful status code #{res.status} when trying to access '#{url}' "
-  return ["#{error}\nTry using '#{res.headers['location']}' instead", true] if res.status.to_i.between?(300, 399) && res.headers.key?('location')
+  if res.status.to_i.between?(300, 399) && res.headers.key?('location')
+    return ["#{error}\nTry using '#{res.headers['location']}' instead", true]
+  end
 
   return [error, true] unless res.status.to_i == 200
 
@@ -54,23 +46,22 @@ end
 
 def check_urls(url_arr, faraday)
   results = url_arr.map { |url| check_url(url, faraday) }
-  [results.map(&:first).join, results.any? { |r| r.last }]
+  [results.map(&:first).join, results.any?(&:last)]
 end
 
 def parse_xml(feed, faraday)
-  result = ["✗ ", true]
+  result = ['✗ ', true]
 
   begin
     xml = faraday.get(URI(feed))
   rescue Faraday::ConnectionFailed
-    return ["#{result.first}Connection Failure when trying to read XML from '#{feed}' ", true]
+    ["#{result.first}Connection Failure when trying to read XML from '#{feed}' ", true]
   rescue Faraday::SSLError
-    return ["#{result.first}SSL Error when trying to read XML from '#{feed}' ", true]
+    ["#{result.first}SSL Error when trying to read XML from '#{feed}' ", true]
   else
     xml_err = Nokogiri::XML(xml.body).errors
-    unless xml_err.empty?
-      return ["#{result.first}Unusable XML syntax: #{feed}\n#{xml_err} ", true]
-    end
+    return ["#{result.first}Unusable XML syntax: #{feed}\n#{xml_err} ", true] unless xml_err.empty?
+
     ['✓ ', false]
   end
 end
@@ -79,9 +70,7 @@ def check_unused_files(av_dir, avatars)
   hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
   diff = (hackergotchis - avatars)
 
-  if diff.empty? || avatars.empty?
-    return [nil, false]
-  end
+  return [nil, false] if diff.empty? || avatars.empty?
 
   ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
 end
@@ -108,15 +97,15 @@ def check_source(key, section, faraday)
     did_fail |= xml_result.last
   end
 
-  return [result.compact.join, did_fail], avatar
+  [[result.compact.join, did_fail], avatar]
 end
 
 def create_job_summary(error_messages)
-  job_summary = ["# Feed Sources\n"]
+  job_summary = ['# Feed Sources\n']
   error_messages.each do |error_message|
     error_message_parts = error_message.split('=>')
 
-    header = error_message_parts[0]&.strip.sub(/^:: /, '')
+    header = error_message_parts[0]&.strip&.sub(/^:: /, '')
     body = error_message_parts[1]&.strip
 
     if header && body
@@ -124,55 +113,51 @@ def create_job_summary(error_messages)
       job_summary << "\n#{body}\n"
     end
   end
-  File.open("error-summary.md", "w") do |file|
+  File.open('error-summary.md', 'w') do |file|
     file.write job_summary.reduce(:+)
   end
 end
 
-def main
-  faraday = initialize_faraday()
-  planet_srcs = INI.load_file(INI_FILE)
+planet_srcs = INI.load_file(INI_FILE)
+did_any_fail = false
+error_messages = []
+avatars = []
 
-  did_any_fail = false
-  error_messages = []
-  avatars = []
-
-  queue = Queue.new
-  planet_srcs.each do |key, section|
-    if ARGV.empty? || ARGV.include?(key)
-      queue.push([key, section])
-    end
-  end
-
-  workers = (0...3).map do
-    Thread.new do
-      until queue.empty?
-        key, section = queue.pop
-        next unless section.is_a?(Hash)
-
-        res, avatar = check_source(key, section, faraday)
-        avatars << avatar
-        puts res.first if res.first
-        error_messages << res.first if res.last
-        did_any_fail ||= res.last
-      end
-    end
-  end
-  workers.each(&:join)
-
-  unused_files_result = check_unused_files(AV_DIR, avatars)
-  if unused_files_result.last
-    error_messages << unused_files_result.first
-    puts "[WARNING] #{unused_files_result.first}"
-  end
-
-  if did_any_fail
-    create_job_summary(error_messages)
-    abort
-  else
-    File.delete('error-summary.md') if File.exist?('error-summary.md')
-    puts "All feeds passed checks!"
-  end
+faraday = Faraday.new(request: { open_timeout: 10 }) do |f|
+  f.response :follow_redirects
+  f.adapter :net_http
 end
 
-main()
+queue = Queue.new
+planet_srcs.each do |key, section|
+  queue.push([key, section]) if ARGV.empty? || ARGV.include?(key)
+end
+
+workers = (0...3).map do
+  Thread.new do
+    until queue.empty?
+      key, section = queue.pop
+      next unless section.is_a?(Hash)
+
+      res, avatar = check_source(key, section, faraday)
+      avatars << avatar
+      puts res.first if res.first
+      error_messages << res.first if res.last
+      did_any_fail ||= res.last
+    end
+  end
+end
+workers.each(&:join)
+
+unused_files_result = check_unused_files(AV_DIR, avatars)
+if unused_files_result.last
+  error_messages << unused_files_result.first
+  puts "[WARNING] #{unused_files_result.first}"
+end
+
+if did_any_fail
+  create_job_summary(error_messages)
+  abort
+end
+File.delete('error-summary.md') if File.exist?('error-summary.md')
+puts 'All feeds passed checks!'

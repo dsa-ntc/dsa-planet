@@ -13,3 +13,5 @@ gem 'pluto-models'
 gem 'rake'
 gem 'rss'
 gem 'webrick'
+gem 'rubocop', require: false
+gem 'rubocop-rake', require: false
