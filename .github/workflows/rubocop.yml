@@ -1,0 +1,47 @@
+name: Rubocop Linting
+
+on:
+    push:
+        paths:
+            - '**.rb'
+            - .github/workflows/rubocop.yml
+            - Gemfile
+            - Gemfile.lock
+    pull_request:
+        paths:
+            - '**.rb'
+            - .github/workflows/rubocop.yml
+            - Gemfile
+            - Gemfile.lock
+    workflow_dispatch:
+
+jobs:
+    rubocop:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Install Ruby
+              uses: ruby/setup-ruby@v1.172.0
+              with:
+                  ruby-version: 3.2
+                  bundler-cache: true
+
+            - name: Install dependencies
+              run: bundle install
+
+            - name: Rubocop run
+              run: |
+                bash -c "
+                    bundle exec rubocop --require code_scanning --format CodeScanning::SarifFormatter -o rubocop.sarif
+                    [[ $? -ne 2 ]]
+                "
+
+            - name: Upload Sarif output
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: rubocop.sarif

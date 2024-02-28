@@ -3,7 +3,7 @@ name: Jekyll Feed Tests
 'on':
   push:
     paths:
-      - ".github/workflows/feeds.yml"
+      - .github/workflows/feeds.yml
       - planet.ini
       - tests/feedcheck.rb
       - Gemfile
@@ -12,17 +12,17 @@ name: Jekyll Feed Tests
       - master
   pull_request:
     paths:
-      - ".github/workflows/feeds.yml"
+      - .github/workflows/feeds.yml
       - planet.ini
       - tests/feedcheck.rb
       - Gemfile
       - Gemfile.lock
     branches:
       - master
-  workflow_dispatch: null
+  workflow_dispatch:
 
 jobs:
-  build:
+  feed-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1.172.0
         with:
-          ruby-version: '3.2'
+          ruby-version: 3.2
           bundler-cache: true
 
       - name: Install Dependencies
