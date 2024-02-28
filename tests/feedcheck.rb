@@ -41,6 +41,7 @@ end
 
 def check_urls(url_arr, faraday)
   results = url_arr.map { |url| check_url(url, faraday) }
+
   [results.map(&:first).join, results.any?(&:last)]
 end
 
@@ -72,22 +73,22 @@ end
 
 def accumulate_results(result, did_fail, new_result)
   result << new_result.first
+
   did_fail | new_result.last
 end
 
 def check_source(key, section, faraday)
-  did_fail = false
   result = [":: #{key} =>  "]
   avatar, link, feed = %w[avatar link feed].map { |k| section[k] if section.key?(k) }
 
   avatar_result = check_avatar(avatar, AV_DIR, faraday)
-  accumulate_results(result, did_fail, avatar_result)
+  did_fail = accumulate_results(result, false, avatar_result)
 
   url_result = check_urls([link, feed], faraday)
-  accumulate_results(result, did_fail, url_result)
+  did_fail = accumulate_results(result, did_fail, url_result)
 
   xml_result = url_result.last ? ['_ ', false] : parse_xml(feed, faraday)
-  accumulate_results(result, did_fail, xml_result)
+  did_fail = accumulate_results(result, did_fail, xml_result)
 
   [[result.compact.join, did_fail], avatar]
 end
@@ -135,7 +136,7 @@ workers = (0...8).map do
 
       res, avatar = check_source(key, section, faraday)
       avatars << avatar
-      puts res.first if res.first
+      puts res.first
       error_messages << res.first if res.last
       did_any_fail ||= res.last
     end
