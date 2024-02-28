@@ -73,28 +73,23 @@ end
 def check_source(key, section, faraday)
   did_fail = false
   result = [":: #{key} =>  "]
-  avatar = section['avatar'] if section.key?('avatar')
+  avatar, link, feed = %w[avatar link feed].map { |k| section[k] if section.key?(k) }
 
   avatar_result = check_avatar(avatar, AV_DIR, faraday)
-  result << avatar_result.first
-  did_fail |= avatar_result.last
+  accumulate_results(result, did_fail, avatar_result)
 
-  link = section['link'] if section.key?('link')
-  feed = section['feed'] if section.key?('feed')
   url_result = check_urls([link, feed], faraday)
-  result << url_result.first
-  did_fail |= url_result.last
+  accumulate_results(result, did_fail, url_result)
 
-  # Only check XML validity if URL checked out ok
-  if url_result.last
-    result << '_ '
-  else
-    xml_result = parse_xml(feed, faraday)
-    result << xml_result.first
-    did_fail |= xml_result.last
-  end
+  xml_result = url_result.last ? '_ ' : parse_xml(feed, faraday)
+  accumulate_results(result, did_fail, xml_result)
 
   [[result.compact.join, did_fail], avatar]
+end
+
+def accumulate_results(result, did_fail, new_result)
+  result << new_result.first
+  did_fail | new_result.last
 end
 
 def create_job_summary(error_messages)
