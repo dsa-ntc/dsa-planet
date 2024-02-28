@@ -19,7 +19,7 @@ module Jekyll
       def setup(config)
         @locale ||= {}
         @locale_date ||= {}
-        config['locales_set'].each do |lang_id, _data|
+        config['locales_set'].each_key do |lang_id|
           next if @locale.key?(lang_id) && @locale_date.key?(lang_id)
 
           @locale[lang_id] = {}
