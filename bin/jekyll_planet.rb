@@ -12,15 +12,20 @@ puts 'db settings:'
 pp @db_config
 
 def generate_frontmatter(data)
-  frontmatter = ''
-  data.each do |key, value|
-    spaces = ' ' * (data.keys.map(&:length).max + 1 - key.length) unless value.is_a?(Array)
-    output = value
-    output = "\"#{value}\"" if value.is_a?(String)
-    output = "\n  - \"#{value.join("\"\n  - \"")}\"" if value.is_a?(Array)
-    frontmatter += "#{key}:#{spaces}#{output}\n"
+  max_key_length = data.keys.map(&:length).max
+
+  data.reduce('') do |frontmatter, (key, value)|
+    spaces = ' ' * (max_key_length + 1 - key.length) unless value.is_a?(Array)
+    output = case value
+             when Array
+               "\n  - \"#{value.join("\"\n  - \"")}\""
+             when String
+               "\"#{value}\""
+             else
+               value
+             end
+    frontmatter + "#{key}:#{spaces}#{output}\n"
   end
-  frontmatter
 end
 
 def fix_up_title(title, content)
