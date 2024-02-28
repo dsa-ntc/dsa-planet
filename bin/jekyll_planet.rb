@@ -11,21 +11,6 @@ puts 'db settings:'
 
 pp @db_config
 
-def run(_args)
-  unless File.exist?(@db_config[:database])
-    puts "** error: database #{@db_config[:database]} missing; please check pluto documention for importing feeds etc."
-    exit 1
-  end
-
-  Pluto.connect(@db_config)
-
-  Pluto::Model::Item.latest.each_with_index do |item, i|
-    puts "[#{i + 1}] #{item.title}"
-
-    generate_blog_post(item)
-  end
-end
-
 def generate_frontmatter(data)
   frontmatter = ''
   data.each do |key, value|
@@ -60,7 +45,7 @@ def generate_blog_post(item)
 
   ## Note:
   ## Jekyll pattern for blogs must follow
-  ##  2014-12-21-  e.g. must include trailing dash (-)
+  ## 2024-12-21-  e.g. must include trailing dash (-)
   if item.title.parameterize == ''
     trailing = Digest::SHA2.hexdigest item.content if item.content
     trailing = Digest::SHA2.hexdigest item.summary if item.summary
@@ -108,4 +93,26 @@ def generate_blog_post(item)
   end
 end
 
-run(ARGV)
+def run(_args)
+  database_path = @db_config[:database]
+
+  unless File.exist?(database_path)
+    puts "[ERROR]  database #{database_path} missing; please check pluto documentation for importing feeds etc."
+    exit 1
+  end
+
+  Pluto.connect(@db_config)
+
+  latest_items = Pluto::Model::Item.latest
+  latest_items.each_with_index do |item, i|
+    puts "[#{i + 1}] #{item.title}"
+
+    generate_blog_post(item)
+  rescue StandardError => e
+    puts "[WARNING] Failed to generate blog post for #{item.title}. Error: #{e.message}"
+  end
+
+  puts "Total of #{latest_items.size} blog posts generated"
+end
+
+run ARGV
