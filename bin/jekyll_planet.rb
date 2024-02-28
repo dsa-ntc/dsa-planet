@@ -29,9 +29,10 @@ def generate_frontmatter(data)
 end
 
 def fix_up_title(title, content)
-  title = Nokogiri::HTML::Document.parse(content).search('//text()').first if content
-  title = title.to_s.slice(0..(title.to_s.index('.'))) if title
-  title = title.to_s.slice(0..255) if title
+  content_texts = content ? Nokogiri::HTML::Document.parse(content).search('//text()') : nil
+  title = content_texts.first.to_s if content_texts&.first
+  title = title.to_s.split('.').first if title
+  title = title.to_s[0..255] if title
   title
 end
 
