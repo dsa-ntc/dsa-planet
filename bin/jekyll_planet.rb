@@ -11,6 +11,20 @@ puts 'db settings:'
 
 pp @db_config
 
+def write_on_file(content, frontmatter, file_name)
+  File.open(file_name, 'w') do |f|
+    f.write "---\n"
+    f.write frontmatter
+    f.write "---\n"
+    f.write content
+  end
+end
+
+def file_parameters(item)
+  posts_root = './_posts'
+  "#{posts_root}/#{parameters_for_file_name(item)}"
+end
+
 def fix_html_content(content, item)
   html = Nokogiri::HTML::DocumentFragment.parse(content).to_html
   html.gsub!('{', '&#123;')
@@ -54,30 +68,22 @@ def populate_author_contacts(data, item)
 end
 
 def collect_data(item)
-  data = {}
-  data['title'] = item.title.gsub('"', '\"') unless item.title.empty?
-  data['created_at'] = item.published if item.published
-  data['updated_at'] = item.updated if item.updated
-  data['guid'] = item.guid unless item.guid.empty?
-  data['author'] = item.feed.title unless item.feed.title.empty?
-  data['avatar'] = item.feed.avatar if item.feed.avatar
-  data['link'] = item.feed.link unless item.feed.link.empty?
-  data['rss'] = item.feed.feed unless item.feed.feed.empty?
-  data['tags'] = [item.feed.location || 'en']
-  data['original_link'] = item.url if item.url
+  data = {
+    'title' => item.title.empty? ? nil : item.title.gsub('"', '\"'),
+    'created_at' => item.published,
+    'updated_at' => item.updated,
+    'guid' => item.guid.empty? ? nil : item.guid,
+    'author' => item.feed.title.empty? ? nil : item.feed.title,
+    'avatar' => item.feed.avatar,
+    'link' => item.feed.link.empty? ? nil : item.feed.link,
+    'rss' => item.feed.feed.empty? ? nil : item.feed.feed,
+    'tags' => [item.feed.location || 'en'],
+    'original_link' => item.url
+  }
   populate_author_contacts(data, item)
   sanitize_orignal_link(data)
 
   data
-end
-
-def write_on_file(content, frontmatter, file_name)
-  File.open(file_name, 'w') do |f|
-    f.write "---\n"
-    f.write frontmatter
-    f.write "---\n"
-    f.write content
-  end
 end
 
 def parameters_for_file_name(item)
@@ -88,11 +94,6 @@ def parameters_for_file_name(item)
     trailing = item.title.parameterize
   end
   "#{item.published.strftime('%Y-%m-%d')}-#{trailing}.html"
-end
-
-def file_parameters(item)
-  posts_root = './_posts'
-  "#{posts_root}/#{parameters_for_file_name(item)}"
 end
 
 def fix_up_title(title, content)

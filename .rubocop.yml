@@ -1,6 +1,12 @@
 require:
     - rubocop-rake
 
+CyclomaticComplexity:
+    Max: 15
+
+PerceivedComplexity:
+    Max: 15
+
 Layout/LineLength:
     Max: 120
 
