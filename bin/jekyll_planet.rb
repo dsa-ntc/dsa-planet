@@ -67,6 +67,7 @@ def populate_author_contacts(data, item)
   end
 end
 
+# rubocop:disable Metrics/AbcSize
 def collect_data(item)
   data = {
     'title' => item.title.empty? ? nil : item.title.gsub('"', '\"'),
@@ -85,6 +86,7 @@ def collect_data(item)
 
   data
 end
+# rubocop:enable Metrics/AbcSize
 
 def parameters_for_file_name(item)
   if item.title.parameterize == ''
