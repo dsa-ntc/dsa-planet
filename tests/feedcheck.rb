@@ -70,6 +70,11 @@ def check_unused_files(av_dir, avatars)
   ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
 end
 
+def accumulate_results(result, did_fail, new_result)
+  result << new_result.first
+  did_fail | new_result.last
+end
+
 def check_source(key, section, faraday)
   did_fail = false
   result = [":: #{key} =>  "]
@@ -81,15 +86,10 @@ def check_source(key, section, faraday)
   url_result = check_urls([link, feed], faraday)
   accumulate_results(result, did_fail, url_result)
 
-  xml_result = url_result.last ? '_ ' : parse_xml(feed, faraday)
+  xml_result = url_result.last ? ['_ ', false] : parse_xml(feed, faraday)
   accumulate_results(result, did_fail, xml_result)
 
   [[result.compact.join, did_fail], avatar]
-end
-
-def accumulate_results(result, did_fail, new_result)
-  result << new_result.first
-  did_fail | new_result.last
 end
 
 def create_job_summary(error_messages)
