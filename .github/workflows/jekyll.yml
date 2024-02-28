@@ -4,20 +4,20 @@ name: Jekyll CI
   push:
     paths-ignore:
       - '*.md'
-      - ".github/workflows/feeds.yml"
-      - "tests/feedcheck.rb"
+      - .github/workflows/feeds.yml
+      - tests/feedcheck.rb
     branches:
       - master
   pull_request:
     paths-ignore:
       - '*.md'
-      - ".github/workflows/feeds.yml"
-      - "tests/feedcheck.rb"
+      - .github/workflows/feeds.yml
+      - tests/feedcheck.rb
     branches:
       - master
+  schedule:
+    - cron: 30 12 * * *
   workflow_dispatch:
-    schedule:
-      - cron: 30 12 * * *
 
 permissions:
   contents: read
@@ -33,7 +33,7 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1.172.0
         with:
-          ruby-version: '3.2'
+          ruby-version: 3.2
           bundler-cache: true
 
       - name: Install Dependencies
