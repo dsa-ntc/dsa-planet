@@ -15,4 +15,5 @@ gem 'rake'
 gem 'rss'
 gem 'rubocop', require: false
 gem 'rubocop-rake', require: false
+gem 'code-scanning-rubocop', require: false
 gem 'webrick'
