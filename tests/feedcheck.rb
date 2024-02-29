@@ -25,6 +25,8 @@ def check_url(url, faraday)
     res = faraday.get(URI(url))
   rescue Faraday::ConnectionFailed
     return ["#{error_message}Connection Failure when trying to access '#{url}' ", true]
+  rescue Faraday::TimeoutError
+    return ["#{error_message}Connection Timeout waiting for '#{url}' ", true]
   rescue Faraday::SSLError
     return ["#{error_message}SSL Error when trying to access '#{url}' ", true]
   end
@@ -68,7 +70,7 @@ def check_unused_files(av_dir, avatars)
 
   return [nil, false] if diff.empty?
 
-  ["There are unused files in hackergotchis:\n#{diff.join(', ')}", true]
+  ["There are unused files in hackergotchis: #{diff.sort.join(', ')}", true]
 end
 
 def accumulate_results(result, did_fail, new_result)
@@ -93,24 +95,26 @@ def check_source(key, section, faraday)
   [[result.compact.join, did_fail], avatar]
 end
 
+def write_to_file(contents, filename)
+  File.open(filename, 'w') { |file| file.write contents.join }
+end
+
+def image_warning_markdown(messages)
+  unused_images = messages.last.match('There are unused files in [A-Za-z]+: (.*)')[1].split(',').join("\n*")
+  ["\n## Unused Images\n", "\nThere are also unused avatar files:\n\n* #{unused_images}\n"]
+end
+
+def prepare_message_markdown(message)
+  header, body = message.split('=>').map(&:strip)
+  return unless header && body
+
+  ["\n### #{header.gsub(/^:: /, '')}\n", "\n#{body}\n"]
+end
+
 def create_job_summary(error_messages)
-  job_summary = ["# Feed Sources\n"]
-
-  error_messages.each do |error_message|
-    error_message_parts = error_message.split('=>')
-
-    header = error_message_parts[0]&.strip&.sub(/^:: /, '')
-    body = error_message_parts[1]&.strip
-
-    if header && body
-      job_summary << "\n## #{header}\n"
-      job_summary << "\n#{body}\n"
-    end
-  end
-
-  File.open('error-summary.md', 'w') do |file|
-    file.write job_summary.reduce(:+)
-  end
+  job_summary = error_messages.map { |message| prepare_message_markdown(message) }.compact.unshift "# Feed Validity Summary\n\n## Feeds\n"
+  job_summary.concat image_warning_markdown(error_messages) if error_messages.last.include? 'There are unused files in'
+  File.open('error-summary.md', 'w') { |file| file.write job_summary.join }
 end
 
 planet_srcs = INI.load_file(INI_FILE)
