@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 ruby '>=3.0'
 gem 'activerecord' # , '< 7.0'
+gem 'code-scanning-rubocop', require: false
 gem 'faraday'
 gem 'faraday-follow_redirects'
 gem 'jekyll'
@@ -15,5 +16,4 @@ gem 'rake'
 gem 'rss'
 gem 'rubocop', require: false
 gem 'rubocop-rake', require: false
-gem 'code-scanning-rubocop', require: false
 gem 'webrick'
