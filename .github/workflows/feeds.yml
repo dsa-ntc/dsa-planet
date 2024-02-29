@@ -3,18 +3,18 @@ name: Jekyll Feed Tests
 'on':
   push:
     paths:
+      - 'tests/feedcheck*.rb'
       - .github/workflows/feeds.yml
       - planet.ini
-      - tests/feedcheck.rb
       - Gemfile
       - Gemfile.lock
     branches:
       - master
   pull_request:
     paths:
+      - 'tests/feedcheck*.rb'
       - .github/workflows/feeds.yml
       - planet.ini
-      - tests/feedcheck.rb
       - Gemfile
       - Gemfile.lock
     branches:

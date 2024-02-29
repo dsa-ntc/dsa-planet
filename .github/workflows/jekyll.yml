@@ -4,15 +4,15 @@ name: Jekyll CI
   push:
     paths-ignore:
       - '*.md'
+      - 'tests/feedcheck*.rb'
       - .github/workflows/feeds.yml
-      - tests/feedcheck.rb
     branches:
       - master
   pull_request:
     paths-ignore:
       - '*.md'
+      - 'tests/feedcheck*.rb'
       - .github/workflows/feeds.yml
-      - tests/feedcheck.rb
     branches:
       - master
   schedule:
