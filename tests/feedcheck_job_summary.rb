@@ -2,7 +2,8 @@
 
 def image_warning_markdown(messages)
   unused_images = messages.last.match('There are unused files in [A-Za-z]+: (.*)')[1].split(',').join("\n*")
-  ["\n## Unused Images\n", "\nThere are also unused avatar files:\n\n* #{unused_images}\n"]
+
+  ["\n## Unused Images\n", "\nThere are also unused avatar files:\n", "\n* #{unused_images}\n"]
 end
 
 def prepare_message_markdown(message)
