@@ -2,7 +2,7 @@
 
 require 'faraday'
 require 'faraday/follow_redirects'
-require 'iniparser'
+require 'inifile'
 
 require_relative 'feedcheck_checks'
 require_relative 'feedcheck_job_summary'
@@ -14,7 +14,7 @@ def write_to_file(contents, filename)
   File.open(filename, 'w') { |file| file.write contents.join }
 end
 
-planet_srcs = INI.load_file(INI_FILE)
+planet_srcs = IniFile.load(INI_FILE).to_h
 did_any_fail = false
 error_messages = []
 avatars = ['default.webp']
