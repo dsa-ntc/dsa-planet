@@ -27,10 +27,6 @@ def get_content(title, feed, link, avatar, location = nil)
   }.compact
 end
 
-def initialize_section
-  IniFile.load('planet.ini')
-end
-
 def write_ini(ini)
   sorted_ini = IniFile.new(encoding: 'UTF-8')
   ini.each_section do |section|
@@ -41,25 +37,27 @@ def write_ini(ini)
   sorted_ini.write(filename: 'planet.ini')
 end
 
+def assign_option(parser, option_hash, option_key)
+  parser.on("-#{option_key[0]}", "--#{option_key} URL", "#{option_key.capitalize} URL") do |url|
+    validate_url(url)
+    option_hash[option_key.to_sym] = url
+  end
+end
+
+def generate_op(option_hash)
+  OptionParser.new do |parser|
+    parser.banner = 'Usage: feed-request.rb [options]'
+    parser.on('-t', '--title TITLE', 'Blog title') { |title| option_hash[:title] = title }
+    %w[feed link avatar].each { |option_key| assign_option(parser, option_hash, option_key) }
+    parser.on('-c', '--location LOCATION', 'Location') do |location|
+      option_hash[:location] = validate_language_code(location)
+    end
+  end.parse!
+end
+
 def parse_options
   options = {}
-  OptionParser.new do |op|
-    op.banner = 'Usage: feed-request.rb [options]'
-    op.on('-t', '--title TITLE', 'Blog title') { |v| options[:title] = v }
-    op.on('-f', '--feed FEED', 'Feed URL') do |v|
-      validate_url(v)
-      options[:feed] = v
-    end
-    op.on('-l', '--link LINK', 'Link URL') do |v|
-      validate_url(v)
-      options[:link] = v
-    end
-    op.on('-a', '--avatar AVATAR', 'Avatar image link') do |v|
-      validate_url(v)
-      options[:avatar] = v
-    end
-    op.on('-c', '--location LOCATION', 'Location') { |v| options[:location] = validate_language_code(v) }
-  end.parse!
+  generate_op(options)
   options.compact!
   raise OptionParser::MissingArgument if %i[title feed link avatar].any? { |k| options[k].nil? }
 
@@ -69,7 +67,7 @@ end
 def main
   options = parse_options
   section_name = options[:title].downcase.tr(' ', '_')
-  ini = initialize_section
+  ini = IniFile.load('planet.ini')
   ini[section_name] = get_content(options[:title], options[:feed], options[:link], options[:avatar], options[:location])
   write_ini(ini)
 end
