@@ -1,0 +1,45 @@
+name: Request Feed Inclusion
+
+on:
+    issues:
+        types: [opened]
+
+jobs:
+    include-feed:
+        if: ${{ contains(github.event.issue.labels.*.name, 'addition') }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install ruby
+              uses: ruby/setup-ruby@v1.172.0
+              with:
+                  ruby-version: 3.2
+                  bundler-cache: true
+
+            - name: Install dependencies
+              run: |
+                bundler install
+
+            - name: Add feed to planet.ini
+              run: |
+                bundle exec ruby tests/feed-request.rb \
+                  -t ${{ steps.feed-data.outputs.dsa-body }} \
+                  -f ${{ steps.feed-data.outputs.feed }} \
+                  -l ${{ steps.feed-data.outputs.rss-feed }} \
+                  -c ${{ steps.feed-data.outputs.language }} \
+                  -a ${{ steps.feed-data.outputs.image }}
+  
+            - name: Create pull request
+              uses: peter-evans/create-pull-request@v6
+              with:
+                  branch: "device-${{ steps.feed-data.outputs.dsa-body }}"
+                  title: "Add Feed for ${{ steps.feed-data.outputs.dsa-body }}"
+                  body: |
+                    DSA Body: ${{ steps.feed-data.outputs.dsa-body }}
+                    Site URL: ${{ steps.feed-data.outputs.site }}
+                    Feed URL: ${{ steps.feed-data.outputs.rss-feed }}
+                    Image URL: ${{ steps.feed-data.outputs.image }}
+                  commit-message: |
+                    add ${{ steps.feed-data.outputs.dsa-body }} feed to planet.ini.
+                    closes issue #${{ github.event.issue.number }}
