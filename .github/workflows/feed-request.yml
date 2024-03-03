@@ -2,7 +2,12 @@ name: Request Feed Inclusion
 
 on:
     issues:
-        types: [opened]
+        types: [labeled]
+
+
+permissions:
+    pull-requests: write
+    contents: write
 
 jobs:
     include-feed:
@@ -10,6 +15,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+
+            - name: Parse feed data
+              id: feed-data
+              uses: issue-ops/parser@v0
+              with:
+                  body: ${{ github.event.issue.body }}
+                  issue-form-template: feed-request.yml
 
             - name: Install ruby
               uses: ruby/setup-ruby@v1.172.0
@@ -22,24 +34,25 @@ jobs:
                 bundler install
 
             - name: Add feed to planet.ini
+              id: add-feed-ini
               run: |
-                bundle exec ruby tests/feed-request.rb \
-                  -t ${{ steps.feed-data.outputs.dsa-body }} \
-                  -f ${{ steps.feed-data.outputs.feed }} \
-                  -l ${{ steps.feed-data.outputs.rss-feed }} \
-                  -c ${{ steps.feed-data.outputs.language }} \
-                  -a ${{ steps.feed-data.outputs.image }}
+                bundle exec ruby tests/feed_request.rb '${{ steps.feed-data.outputs.json }}'
   
+            - run: |
+                raw_name='${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}'
+                sanitized_name=$(echo $raw_name | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
+                echo "BRANCH_NAME=$sanitized_name" >> $GITHUB_ENV
+
             - name: Create pull request
               uses: peter-evans/create-pull-request@v6
               with:
-                  branch: "device-${{ steps.feed-data.outputs.dsa-body }}"
-                  title: "Add Feed for ${{ steps.feed-data.outputs.dsa-body }}"
+                  branch: "device-${{ env.BRANCH_NAME }}"
+                  title: "Add Feed for ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}"
                   body: |
-                    DSA Body: ${{ steps.feed-data.outputs.dsa-body }}
-                    Site URL: ${{ steps.feed-data.outputs.site }}
-                    Feed URL: ${{ steps.feed-data.outputs.rss-feed }}
-                    Image URL: ${{ steps.feed-data.outputs.image }}
+                    DSA Body: ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}
+                    Feed URL: ${{ fromJSON(steps.feed-data.outputs.json).what_is_your_rss_feed }}
+                    Site URL: ${{ fromJSON(steps.feed-data.outputs.json).what_is_your_website }}
+                    Image URL: ${{ fromJSON(steps.feed-data.outputs.json).what_image_do_you_want_to_use }}
                   commit-message: |
-                    add ${{ steps.feed-data.outputs.dsa-body }} feed to planet.ini.
+                    add ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }} feed to planet.ini.
                     closes issue #${{ github.event.issue.number }}

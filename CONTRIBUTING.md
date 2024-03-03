@@ -7,32 +7,19 @@ you can bypass the issues template to add it directly to the file
 [planet.ini](planet.ini).
 
 1. Fork this repository
-2. Edit [planet.ini](planet.ini) and add:
+2. Upload your avatar to [hackergotchi directory](hackergotchi)
+  * Supported formats: `jpg`, `png`, (some) `svg` files, and `webp`. When in doubt, just use your chapter's Twitter or Facebook avatar. Webp is preferred as it speeds up load times.
+3. Edit [planet.ini](planet.ini) and add a new section containing the info for your feed
 
-  ```ini
-  [id]         # replace id with your feed's unique identifier (a-z0-9-_)   (eg. dsa-chapter)
-   title     = # title of your feed                                         (eg. DSA Chapter News or something like Publication Name: A Blog of this DSA Chapter)
-   feed      = # url to your rss/atom feed                                  (eg. https://dsausa.org/feed)
-   link      = # link to the main page of your website                      (eg. https://dsausa.org)
-   location  = # ISO_639 language code (may include ISO 3166 country code)  (eg. en)
-   avatar    = # filename or url of your avatar in hackergotchi dir         (eg. example.webp)
-   email     = # (optional) your contact email                              (eg. dsa@example.com)
-  ```
-  
-  An example you may copy and paste is here: 
-  
   ```ini
   [exampledsa]
-   title     = Example DSA
-   feed      = https://www.example.com/feed/
-   link      = https://www.example.com
-   location  = en
-   avatar    = example.webp
-   email     = dsa@example.com
+  title = Example DSA
+  feed = https://www.example.com/feed/
+  link = https://www.example.com
+  location = en
+  avatar = example.webp
   ```
 
-3. Upload your avatar to [hackergotchi directory](hackergotchi)
-  * Supported formats: `jpg`, `png`, (some) `svg` files, and `webp`. When in doubt, just use your chapter's Twitter or Facebook avatar. Webp is preferred as it speeds up load times.
 4. Open a Pull Request against this repository.
 
 Alternatively you can send an email to 
