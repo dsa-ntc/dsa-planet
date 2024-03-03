@@ -23,7 +23,7 @@ jobs:
 
             - name: Add feed to planet.ini
               run: |
-                bundle exec ruby tests/feed-request.rb \
+                bundle exec ruby tests/feed_request.rb \
                   -t ${{ steps.feed-data.outputs.dsa-body }} \
                   -f ${{ steps.feed-data.outputs.feed }} \
                   -l ${{ steps.feed-data.outputs.rss-feed }} \
