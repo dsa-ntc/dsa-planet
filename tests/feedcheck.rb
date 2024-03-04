@@ -48,7 +48,7 @@ workers.each(&:join)
 unused_files_result = check_unused_files(AV_DIR, avatars) if ARGV.empty? || ARGV[0].nil? || !ARGV[0]
 unless unused_files_result.nil? || !unused_files_result.last
   error_messages << unused_files_result.first
-  puts "[WARNING] #{unused_files_result.first}"
+  puts "::warning::#{unused_files_result.first}"
 end
 
 if did_any_fail
@@ -56,4 +56,4 @@ if did_any_fail
   abort
 end
 File.delete('error-summary.md') if File.exist?('error-summary.md')
-puts 'All feeds passed checks!'
+puts '::notice::All feeds passed checks!'

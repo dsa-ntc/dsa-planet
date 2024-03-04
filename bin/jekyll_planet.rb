@@ -135,12 +135,12 @@ def handle_blog_post(item, index)
 
   generate_blog_post(item)
 rescue StandardError => e
-  puts "[WARNING] Failed to generate blog post for #{item.title}. Error: #{e.message}"
+  puts "::warning::Failed to generate blog post for #{item.title}. Error: #{e.message}"
 end
 
 def generate_posts
   latest_items = Pluto::Model::Item.latest
-  puts "Total of #{latest_items.size} blog posts generated"
+  puts "::notice::Total of #{latest_items.size} blog posts generated"
 
   latest_items.each_with_index do |item, i|
     handle_blog_post(item, i)
@@ -151,7 +151,7 @@ def handle_database
   database_path = @db_config[:database]
   return if File.exist?(database_path)
 
-  abort "[ERROR]  database #{database_path} missing; please check pluto documentation for importing feeds etc."
+  abort "::error::database #{database_path} missing; please check pluto documentation for importing feeds etc."
 end
 
 def run(_args)
