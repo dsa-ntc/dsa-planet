@@ -52,6 +52,10 @@ unless unused_files_result.nil? || !unused_files_result.last
 end
 
 if did_any_fail
+  puts '::notice::Feed Errors Summary'
+  error_messages.each do |message|
+    puts "::error::#{message}"
+  end
   create_job_summary(error_messages)
   abort
 end
