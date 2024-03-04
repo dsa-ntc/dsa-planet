@@ -32,6 +32,7 @@ jobs:
             - name: Install dependencies
               run: |
                 bundler install
+                sudo apt install imagemagick -y
 
             - name: Add feed to planet.ini
               id: add-feed-ini
