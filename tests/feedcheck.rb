@@ -46,9 +46,7 @@ end
 workers.each(&:join)
 
 unused_files_result = check_unused_files(AV_DIR, avatars) if ARGV.empty? || ARGV[0].nil? || !ARGV[0]
-unless unused_files_result.nil? || !unused_files_result.last
-  puts "::warning::#{unused_files_result.first}"
-end
+puts "::warning::#{unused_files_result.first}" unless unused_files_result.nil? || !unused_files_result.last
 
 if did_any_fail
   puts '::notice::Feed Errors Summary'

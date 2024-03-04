@@ -13,5 +13,5 @@ Layout/LineLength:
 Metrics/MethodLength:
     Max: 20
 
-    AllCops:
-        TargetRubyVersion: 3.0
+AllCops:
+    TargetRubyVersion: 3.0
