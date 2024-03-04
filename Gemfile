@@ -6,6 +6,7 @@ gem 'activerecord' # , '< 7.0'
 gem 'code-scanning-rubocop', require: false
 gem 'faraday'
 gem 'faraday-follow_redirects'
+gem 'inifile'
 gem 'jekyll'
 gem 'jekyll-paginate-v2'
 gem 'jekyll-theme-opensuse', git: 'https://github.com/dsa-ntc/jekyll-theme.git', branch: 'master'

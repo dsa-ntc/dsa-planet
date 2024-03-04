@@ -1,0 +1,76 @@
+name: Request Feed Inclusion
+
+on:
+    issues:
+        types: [labeled]
+
+
+permissions:
+    pull-requests: write
+    contents: write
+
+jobs:
+    include-feed:
+        if: ${{ contains(github.event.issue.labels.*.name, 'addition') }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Parse feed data
+              id: feed-data
+              uses: issue-ops/parser@v0
+              with:
+                  body: ${{ github.event.issue.body }}
+                  issue-form-template: feed-request.yml
+
+            - name: Install ruby
+              uses: ruby/setup-ruby@v1.172.0
+              with:
+                  ruby-version: 3.2
+                  bundler-cache: true
+
+            - name: Install dependencies
+              run: |
+                bundler install
+
+            - name: Add feed to planet.ini
+              id: add-feed-ini
+              run: |
+                bundle exec ruby tests/feed_request.rb '${{ steps.feed-data.outputs.json }}'
+  
+            - run: |
+                raw_name='${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}'
+                sanitized_name=$(echo $raw_name | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
+                echo "BRANCH_NAME=$sanitized_name" >> $GITHUB_ENV
+
+            - name: Check Feed
+              run: bundle exec ruby tests/feedcheck.rb ${{ env.BRANCH_NAME }}
+
+            - name: Save Job Summary
+              if: failure()
+              run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
+
+            - name: Add comment
+              if: failure()
+              run: gh issue comment "$NUMBER" --body "$BODY"
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GH_REPO: ${{ github.repository }}
+                NUMBER: ${{ github.event.issue.number }}
+                BODY: |
+                  Unfortunately the feeds did not pass automated checks. Please verify the submitted information.
+
+            - name: Create pull request
+              if: success()
+              uses: peter-evans/create-pull-request@v6
+              with:
+                  branch: "add-${{ env.BRANCH_NAME }}"
+                  title: "Add Feed for ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}"
+                  body: |
+                    DSA Body: ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}
+                    Feed URL: ${{ fromJSON(steps.feed-data.outputs.json).what_is_your_rss_feed }}
+                    Site URL: ${{ fromJSON(steps.feed-data.outputs.json).what_is_your_website }}
+                    Image URL: ${{ fromJSON(steps.feed-data.outputs.json).what_image_do_you_want_to_use }}
+                  commit-message: |
+                    add ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }} feed to planet.ini.
+                    closes issue #${{ github.event.issue.number }}

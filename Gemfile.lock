@@ -60,6 +60,7 @@ GEM
     http_parser.rb (0.8.0)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
+    inifile (3.0.0)
     iniparser (1.0.1)
     jekyll (4.3.2)
       addressable (~> 2.4)
@@ -216,6 +217,7 @@ DEPENDENCIES
   code-scanning-rubocop
   faraday
   faraday-follow_redirects
+  inifile
   jekyll
   jekyll-paginate-v2
   jekyll-theme-opensuse!

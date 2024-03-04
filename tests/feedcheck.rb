@@ -2,7 +2,7 @@
 
 require 'faraday'
 require 'faraday/follow_redirects'
-require 'iniparser'
+require 'inifile'
 
 require_relative 'feedcheck_checks'
 require_relative 'feedcheck_job_summary'
@@ -14,7 +14,7 @@ def write_to_file(contents, filename)
   File.open(filename, 'w') { |file| file.write contents.join }
 end
 
-planet_srcs = INI.load_file(INI_FILE)
+planet_srcs = IniFile.load(INI_FILE).to_h
 did_any_fail = false
 error_messages = []
 avatars = ['default.webp']
@@ -33,7 +33,7 @@ workers = (0...8).map do
   Thread.new do
     until queue.empty?
       key, section = queue.pop
-      next unless section.is_a?(Hash)
+      next unless section.is_a?(Hash) && (key != 'global')
 
       res, avatar = check_source(key, section, faraday)
       avatars << avatar
@@ -45,8 +45,8 @@ workers = (0...8).map do
 end
 workers.each(&:join)
 
-unused_files_result = check_unused_files(AV_DIR, avatars)
-if unused_files_result.last
+unused_files_result = check_unused_files(AV_DIR, avatars) if ARGV.empty? || ARGV[0].nil? || !ARGV[0]
+unless unused_files_result.nil? || !unused_files_result.last
   error_messages << unused_files_result.first
   puts "[WARNING] #{unused_files_result.first}"
 end
