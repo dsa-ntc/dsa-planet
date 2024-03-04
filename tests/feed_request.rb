@@ -54,7 +54,7 @@ end
 def main(json_arg)
   json_argument = JSON.parse(json_arg)
   options = parse_json_argument(json_argument)
-  section_name = options[:title].downcase.tr(' ', '_')
+  section_name = options[:title].downcase.tr('- ', '')
   ini = IniFile.load('planet.ini')
   ini[section_name] = get_content(options[:title], options[:feed], options[:link], options[:avatar], options[:location])
   write_ini(ini)
