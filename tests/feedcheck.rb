@@ -49,7 +49,7 @@ unused_files_result = check_unused_files(AV_DIR, avatars) if ARGV.empty? || ARGV
 puts "::warning::#{unused_files_result.first}" unless unused_files_result.nil? || !unused_files_result.last
 
 if did_any_fail
-  puts '::notice::Feed Errors Summary'
+  puts 'Feed Errors Summary'
   error_messages.each do |message|
     puts "::error::#{message}"
   end
