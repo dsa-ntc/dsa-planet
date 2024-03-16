@@ -37,7 +37,7 @@
 				</a>
 				<div class="roller">
 					<input class="roller-input" id="{{ post.guid | slugify }}" type="checkbox">
-					<label class="roller-label btn btn-primary mt-3" for="{{ post.guid | slugify }}" role="button">
+					<label class="roller-label btn btn-primary mt-3" for="{{ post.guid | slugify }}" tabindex="0" role="button">
 						<span class="show-more">{{ locale.showmore }}</span>
 						<span class="show-less">{{ locale.showless }}</span>
 					</label>
