@@ -5,31 +5,31 @@
 	<div class="col-12 col-md-8 p-0">
 		<div class="card mb-3 card-sm-border-0">
 			<div class="row m-0 border-bottom">
-			<div class="col-auto d-md-none d-flex p-0">
-			{% include avatar.html width="48px" class="my-auto mr-2" %}
-			</div>
-			<div class="col card-header d-flex justify-content-between pl-1 pl-md-3 border-0">
-				<div>
-				{% capture post_author %}
-				<a href="{{ post.link }}">{{ post.author }}</a>
-				<a href="{{ post.rss }}">{% include icons/feed.svg %}</a>
-				{% endcapture %}
-				{% capture post_language %}
-				{% assign lang = site.localization.locales_set[post.tags.first] %}
-				<a class="text-muted" href="{{ site.baseurl }}/{{ post.tags.first }}/">{{ lang.name }}</a>
-				{% endcapture %}
-				{% capture post_time %}
-				<a class="text-muted" href="{{ post.original_link }}">{{ post.created_at | date: "%H:%M" }}</a>
-				{% endcapture %}
-				<span class="text-muted">
-				{% if include.language %}
-				  {{ locale.postedinat | replace: '$author', post_author | replace: '$language', post_language | replace: '$time', post_time }}
-				{% else %}
-				  {{ locale.postedat | replace: '$author', post_author | replace: '$time', post_time }}
-				{% endif %}
-				</span>
+				<div class="col-auto d-md-none d-flex p-0">
+					{% include avatar.html width="48px" class="my-auto mr-2" %}
 				</div>
-			</div>
+				<div class="col card-header d-flex justify-content-between pl-1 pl-md-3 border-0">
+					<div>
+						{% capture post_author %}
+						<a href="{{ post.link }}">{{ post.author }}</a>
+						<a href="{{ post.rss }}">{% include icons/feed.svg %}</a>
+						{% endcapture %}
+						{% capture post_language %}
+						{% assign lang = site.localization.locales_set[post.tags.first] %}
+						<a class="text-muted" href="{{ site.baseurl }}/{{ post.tags.first }}/">{{ lang.name }}</a>
+						{% endcapture %}
+						{% capture post_time %}
+						<a class="text-muted" href="{{ post.original_link }}">{{ post.created_at | date: "%H:%M" }}</a>
+						{% endcapture %}
+						<span class="text-muted">
+							{% if include.language %}
+							  {{ locale.postedinat | replace: '$author', post_author | replace: '$language', post_language | replace: '$time', post_time }}
+							{% else %}
+							  {{ locale.postedat | replace: '$author', post_author | replace: '$time', post_time }}
+							{% endif %}
+						</span>
+					</div>
+				</div>
 			</div>
 			<div class="card-body">
 				<a href="{{ post.original_link }}">

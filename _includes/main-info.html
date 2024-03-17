@@ -9,11 +9,11 @@
         <h5>{{ locale.subtitle | replace: '$project', project }}</h5>
       </div>
       <div class="col-12 text-center">
-      {% assign sorted = site.tags | sort %}
-      {% for tag in sorted %}
-      {% assign lang = site.localization.locales_set[tag.first] %}
-        <a class="mx-2" href="{{ site.baseurl }}/{{ tag.first }}/">{{ lang.name }}</a>
-      {% endfor %}
+        {% assign sorted = site.tags | sort %}
+        {% for tag in sorted %}
+        {% assign lang = site.localization.locales_set[tag.first] %}
+          <a class="mx-2" href="{{ site.baseurl }}/{{ tag.first }}/">{{ lang.name }}</a>
+        {% endfor %}
       </div>
     </div>
   </div>
