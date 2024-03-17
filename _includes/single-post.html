@@ -22,41 +22,55 @@
                         <a class="text-muted" href="{{ post.original_link }}">{{ post.created_at | date: "%H:%M" }}</a>
                         {% endcapture %}
                         <span class="text-muted">
-							{% if include.language %}
-							  {{ locale.postedinat | replace: '$author', post_author | replace: '$language', post_language | replace: '$time', post_time }}
-							{% else %}
-							  {{ locale.postedat | replace: '$author', post_author | replace: '$time', post_time }}
-							{% endif %}
-						</span>
+                            {% if include.language %}
+                            {{ locale.postedinat | replace: '$author', post_author | replace: '$language', post_language | replace: '$time', post_time }}
+                            {% else %}
+                            {{ locale.postedat | replace: '$author', post_author | replace: '$time', post_time }}
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <a href="{{ post.original_link }}">
-                    <h2>{{ post.title }}</h2>
-                </a>
+                <h2>
+                    <a href="{{ post.original_link }}">{{ post.title }}</a>
+                </h2>
                 <div class="roller">
                     <script type="text/javascript">
-                        function getLoad(id) {
-                            document.getElementById(`button_${id}`).addEventListener('click', function (event) {
-                                const button = event.target;
-                                const isExpanded = button.getAttribute('aria-expanded') === 'true';
-                                const elementToChange = document.getElementById(`content_${id}`);
+                        function toggleButton(id) {
+                            const button = document.getElementById(`button_${id}`)
 
-                                if (isExpanded) {
-                                    button.setAttribute('aria-expanded', 'false');
-                                    button.innerHTML = "{{ locale.showmore }}";
+                            function expand(e) {
+                                const elementToChange = document.getElementById(`content_${id}`);
+                                if (e.target.getAttribute('aria-expanded') === 'true') {
                                     elementToChange.style.maxHeight = "50vh";
-                                } else {
-                                    button.setAttribute('aria-expanded', 'true');
-                                    button.innerHTML = "{{ locale.showless }}";
-                                    elementToChange.style.maxHeight = "100%";
+                                    setTimeout(function () {
+                                        e.target.scrollIntoView({behavior: "smooth", block: "start"});
+                                    }, 250);
+                                    return
                                 }
-                            });
+                                elementToChange.style.maxHeight = "100%";
+                                return
+                            }
+
+                            button.addEventListener('click', expand);
+
+                            function buttonStyle(e) {
+                                if (e.target.getAttribute('aria-expanded') === 'true') {
+                                    e.target.setAttribute('aria-expanded', 'false');
+                                    e.target.innerHTML = "{{ locale.showmore }}";
+                                    return
+                                }
+                                e.target.setAttribute('aria-expanded', 'true');
+                                e.target.innerHTML = "{{ locale.showless }}";
+                                return
+                            }
+
+                            button.addEventListener('click', buttonStyle);
                         }
 
                         document.addEventListener("DOMContentLoaded", function () {
-                            getLoad('{{ post.guid | slugify }}')
+                            toggleButton('{{ post.guid | slugify }}')
                         });
                     </script>
                     <div class="roller-item"
