@@ -14,6 +14,7 @@ postedat: $author posted at $time
 postedinat: $author posted in $language at $time
 showmore: Show More
 showless: Show Less
+viewfull: Visit Source
 join_dsa: Join DSA
 atom_feed: Atom Feed
 rss_feed: RSS 2.0 Feed

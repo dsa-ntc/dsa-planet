@@ -41,12 +41,21 @@
                          id="content_{{ post.guid | slugify }}">
                         {{ post.content }}
                     </div>
+                    {% if post.content contains ' […]' %}
+                    <a href="{{ post.original_link }}" target="_blank">
+                    <button class="roller-button btn btn-primary mt-3"
+                            id="viewfull_{{ post.guid | slugify }}">
+                        {{ locale.viewfull }}
+                    </button>
+                    </a>
+                    {% else %}
                     <button class="roller-button btn btn-primary mt-3"
                             id="button_{{ post.guid | slugify }}"
                             aria-expanded="false"
                             onclick="toggleArticleExpand('{{ post.guid | slugify }}', '{{ locale.showmore }}', '{{ locale.showless }}');">
                         {{ locale.showmore }}
                     </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
