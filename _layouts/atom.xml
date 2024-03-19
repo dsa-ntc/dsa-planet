@@ -5,7 +5,7 @@
   {%- if page.locale.name == 'Global' %}{% assign lang_id = '/' %}{% else %}{% assign lang_id = page.locale.id | append: '/' %}{% endif %}
   <title>{{ locale[site.title] }} - {{ page.locale.name }}</title>
   <subtitle>{{ locale[site.description] }}</subtitle>
-  <icon>{{ '/images/icon.svg' | absolute_url }}</icon>
+  <icon>{{ '/images/logo.svg' | absolute_url }}</icon>
   <logo>{{ '/images/logo.svg' | absolute_url }}</logo>
   <link href="{{ lang_id | absolute_url }}"/>
   <link rel="self" href="{{ lang_id | append: 'atom.xml' | absolute_url }}"/>
