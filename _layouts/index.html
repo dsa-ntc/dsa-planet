@@ -22,8 +22,14 @@ layout: default
 {% endif %}
 <div class="container my-4 p-0">
     {% for post in paginator.posts %}
+    {% unless post.content contains 'This content is password protected. To view it please enter your password below' %}
     {% include calendar.html %}
     {% include single-post.html %}
+    {% endunless %}
     {% endfor %}
     {% include pagination.html %}
+</div>
+
+<div class="container text-center my-4 p-0">
+    {{site.time}}
 </div>
