@@ -20,7 +20,7 @@ layout: default
 {% else %}
 {% include breadcrumbs.html %}
 {% endif %}
-<div class="container my-4 p-0">
+<div id="maincontent" class="container my-4 p-0">
     {% for post in paginator.posts %}
     {% unless post.content contains 'This content is password protected. To view it please enter your password below' %}
     {% include calendar.html %}
