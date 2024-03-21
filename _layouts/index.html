@@ -31,5 +31,7 @@ layout: default
 </div>
 
 <div class="container text-center my-4 p-0">
-    {{site.time}}
+    <time datetime="{{ site.time | date_to_xmlschema }}">
+        {{ locale.site_generated_prefix }}{{ site.time | date_to_string }}
+    </time>
 </div>
