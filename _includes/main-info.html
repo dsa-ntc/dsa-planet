@@ -5,14 +5,20 @@
         <img class="mx-auto" src="{{ site.baseurl }}/assets/images/logo.svg"/>
       </div>
       <div class="col-md my-auto">
-        <h2>{% if page.locale.name == 'Global' %}{{ locale.welcome }}{% else %}{{ locale.welcome_lang }}{% endif %}</h2>
+        <h2>
+        {% if page.locale.name == 'Global' %}
+        {{ locale.welcome }}
+        {% else %}
+        {{ locale.welcome_lang }}
+        {% endif %}
+        </h2>
         <h5>{{ locale.subtitle | replace: '$project', project }}</h5>
       </div>
       <div class="col-12 text-center">
         {% assign sorted = site.tags | sort %}
         {% for tag in sorted %}
         {% assign lang = site.localization.locales_set[tag.first] %}
-          <a class="mx-2" href="{{ site.baseurl }}/{{ tag.first }}/">{{ lang.name }}</a>
+        <a class="mx-2" href="{{ site.baseurl }}/{{ tag.first }}/">{{ lang.name }}</a>
         {% endfor %}
       </div>
     </div>
