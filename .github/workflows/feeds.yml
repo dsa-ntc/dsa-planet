@@ -3,6 +3,7 @@ name: Jekyll Feed Tests
 'on':
   push:
     paths:
+      - 'hackergotchi/*'
       - 'tests/feedcheck*.rb'
       - .github/workflows/feeds.yml
       - planet.ini
@@ -12,6 +13,7 @@ name: Jekyll Feed Tests
       - master
   pull_request:
     paths:
+      - 'hackergotchi/*'
       - 'tests/feedcheck*.rb'
       - .github/workflows/feeds.yml
       - planet.ini

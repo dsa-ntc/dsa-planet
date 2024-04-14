@@ -2,25 +2,35 @@
 layout: default
 title: Global
 pagination:
-  enabled: true
-  sort_field: 'created_at'
-  title: Global
+    enabled: true
+    sort_field: 'created_at'
+    title: Global
 ---
-<link rel="alternate" type="application/rss+xml" title="{{ locale[site.title] }} - {{ page.locale.name }}" href="{{ '/global/rss20.xml' | absolute_url  }}">
-<link rel="alternate" type="application/atom+xml" title="{{ locale[site.title] }} - {{ page.locale.name }}" href="{{ '/global/atom.xml' | absolute_url  }}">
+<link rel="alternate"
+      type="application/rss+xml"
+      title="{{ locale[site.title] }} - {{ page.locale.name }}"
+      href="{{ '/global/rss20.xml' | absolute_url }}">
+<link rel="alternate"
+      type="application/atom+xml"
+      title="{{ locale[site.title] }} - {{ page.locale.name }}"
+      href="{{ '/global/atom.xml' | absolute_url }}">
 {% if paginator.page == 1 %}
 {% include main-info.html %}
 {% else %}
 {% include breadcrumbs.html %}
 {% endif %}
-<div class="container my-4 p-0">
-	{% for post in paginator.posts %}
-	{% include calendar.html %}
-	{% include single-post.html language="true" %}
-	{% endfor %}
-	{% include pagination.html %}
+<div id="maincontent" class="container my-4 p-0">
+    {% for post in paginator.posts %}
+    {% unless post.content contains 'This content is password protected. To view it please enter your password below' %}
+    {% include calendar.html %}
+    {% include single-post.html language="true" %}
+    {% endunless %}
+    {% endfor %}
+    {% include pagination.html %}
 </div>
 
 <div class="container text-center my-4 p-0">
-  {{site.time}}
+    <time datetime="{{ site.time | date_to_xmlschema }}">
+        {{ locale.site_generated_prefix }}{{ site.time | date_to_string }}
+    </time>
 </div>

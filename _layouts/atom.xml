@@ -2,17 +2,17 @@
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-{%- if page.locale.name == 'Global' %}{% assign lang_id = '/' %}{% else %}{% assign lang_id = page.locale.id | append: '/' %}{% endif %}
+  {%- if page.locale.name == 'Global' %}{% assign lang_id = '/' %}{% else %}{% assign lang_id = page.locale.id | append: '/' %}{% endif %}
   <title>{{ locale[site.title] }} - {{ page.locale.name }}</title>
   <subtitle>{{ locale[site.description] }}</subtitle>
-  <icon>{{ '/images/icon.svg' | absolute_url }}</icon>
+  <icon>{{ '/images/logo.svg' | absolute_url }}</icon>
   <logo>{{ '/images/logo.svg' | absolute_url }}</logo>
   <link href="{{ lang_id | absolute_url }}"/>
   <link rel="self" href="{{ lang_id | append: 'atom.xml' | absolute_url }}"/>
   <updated>{{ site.time | date_to_xmlschema }}</updated>
   <id>{{ lang_id | absolute_url }}</id>
   <generator>Pluto</generator>
-{% for post in paginator.posts %}
+  {% for post in paginator.posts %}
   <entry>
     <id>{{ post.guid | xml_escape }}</id>
     <author>
@@ -22,9 +22,10 @@
     <published>{{ post.created_at | date_to_xmlschema }}</published>
     <updated>{{ post.updated_at | date_to_xmlschema }}</updated>
     <title>{{ post.title | xml_escape }}</title>
-    {% if post.summary %}<summary>{{ post.summary | xml_escape }}</summary>
+    {% if post.summary %}
+    <summary>{{ post.summary | xml_escape }}</summary>
     {% endif %}<link href="{{ post.original_link | xml_escape }}"/>
     <content type="html">{{ post.content | xml_escape }}</content>
   </entry>
-{% endfor %}
+  {% endfor %}
 </feed>

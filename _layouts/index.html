@@ -1,23 +1,37 @@
 ---
 layout: default
 ---
-<link rel="alternate" type="application/rss+xml" title="{{ locale[site.title] }} - {{ page.locale.name }}" href="{{ page.locale.id | append: '/rss20.xml' | absolute_url  }}">
-<link rel="alternate" type="application/atom+xml" title="{{ locale[site.title] }} - {{ page.locale.name }}" href="{{ page.locale.id | append: '/atom.xml' | absolute_url  }}">
+<link rel="alternate"
+      type="application/rss+xml"
+      title="{{ locale[site.title] }} - {{ page.locale.name }}"
+      href="{{ page.locale.id | append: '/rss20.xml' | absolute_url }}">
+<link rel="alternate"
+      type="application/atom+xml"
+      title="{{ locale[site.title] }} - {{ page.locale.name }}"
+      href="{{ page.locale.id | append: '/atom.xml' | absolute_url }}">
 <script>
-// Replace rss and atom links with the local versions
-var header_links = document.querySelectorAll('.nav-link');
-header_links[1].href = "{{ page.locale.id | append: '/atom.xml' | absolute_url  }}";
-header_links[2].href = "{{ page.locale.id | append: '/rss20.xml' | absolute_url  }}";
+    const header_links = document.querySelectorAll('.nav-link');
+    // Replace rss and atom links with the local versions
+    header_links[1].href = "{{ page.locale.id | append: '/atom.xml' | absolute_url }}";
+    header_links[2].href = "{{ page.locale.id | append: '/rss20.xml' | absolute_url }}";
 </script>
 {% if paginator.page == 1 %}
 {% include main-info.html %}
 {% else %}
 {% include breadcrumbs.html %}
 {% endif %}
-<div class="container my-4 p-0">
-	{% for post in paginator.posts %}
-	{% include calendar.html %}
-	{% include single-post.html %}
-	{% endfor %}
-	{% include pagination.html %}
+<div id="maincontent" class="container my-4 p-0">
+    {% for post in paginator.posts %}
+    {% unless post.content contains 'This content is password protected. To view it please enter your password below' %}
+    {% include calendar.html %}
+    {% include single-post.html %}
+    {% endunless %}
+    {% endfor %}
+    {% include pagination.html %}
+</div>
+
+<div class="container text-center my-4 p-0">
+    <time datetime="{{ site.time | date_to_xmlschema }}">
+        {{ locale.site_generated_prefix }}{{ site.time | date_to_string }}
+    </time>
 </div>
