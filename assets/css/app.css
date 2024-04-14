@@ -1,18 +1,17 @@
 .card * {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 .map-container {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 }
 
-
 .map {
-    position: absolute;
-    opacity: 10%;
-    width: calc(100% + 600px);
+  position: absolute;
+  opacity: 10%;
+  width: calc(100% + 600px);
     left: -300px;
     top: 0;
 }
@@ -61,13 +60,13 @@ body p, body h2, body h3, body h5 {
 }
 
 body p {
-       color: #231F20;
+    color: #231F20;
 }
-     
+
 .card {
-   color: #231F20;
-   border-color: #231F20;
-   background-color: whitesmoke;
+    color: #231F20;
+    border-color: #231F20;
+    background-color: whitesmoke;
 }
 
 a, a:hover {
@@ -179,18 +178,18 @@ h2 {
 
 @media (prefers-color-scheme: dark) {
     .bg-light {
-        background-color: #231F20 !important
+        background-color: #231F20 !important;
     }
 
     .border-bottom {
-        border-color: #495057 !important
+        border-color: #495057 !important;
     }
 
     .card-header::before {
-        border-right-color: #495057
+        border-right-color: #495057;
     }
 
     .card-header::after {
-        border-right-color: #343a40
+        border-right-color: #343a40;
     }
 }
