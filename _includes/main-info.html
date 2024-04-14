@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row col-md-10 mx-auto">
       <div class="col-md-auto d-flex">
-        <img class="mx-auto" src="{{ site.baseurl }}/assets/images/logo.svg"/>
+        <img alt="DSA Logo" class="mx-auto" src="{{ site.baseurl }}/assets/images/logo.svg"/>
       </div>
       <div class="col-md my-auto">
         <h2>
@@ -12,7 +12,7 @@
         {{ locale.welcome_lang }}
         {% endif %}
         </h2>
-        <h5>{{ locale.subtitle | replace: '$project', project }}</h5>
+        <h3>{{ locale.subtitle | replace: '$project', project }}</h3>
       </div>
       <div class="col-12 text-center">
         {% assign sorted = site.tags | sort %}

@@ -56,13 +56,18 @@ body {
     background-color: #fff;
 }
 
-body h3 {
+body p, body h2, body h3, body h5 {
     color: #231F20;
 }
 
+body p {
+       color: #231F20;
+}
+     
 .card {
-    border-color: #231F20;
-    background-color: #231F20;
+   color: #231F20;
+   border-color: #231F20;
+   background-color: whitesmoke;
 }
 
 a, a:hover {
