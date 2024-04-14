@@ -34,11 +34,6 @@
     color: #EC1F27;
 }
 
-body {
-    background-color: #231F20;
-    color: #C1C0BF;
-}
-
 .navbar:not(.navbar-light) .navbar-brand:hover {
     color: #231F20;
 }
@@ -47,19 +42,11 @@ body {
     color: #231F20;
 }
 
-.bg-light {
-    background-color: #f6f6f6 !important;
-}
-
 body {
     background-color: #fff;
 }
 
 body p, body h2, body h3, body h5 {
-    color: #231F20;
-}
-
-body p {
     color: #231F20;
 }
 
@@ -174,22 +161,4 @@ h2 {
 
 .avatar {
     width: calc(100% - 1rem);
-}
-
-@media (prefers-color-scheme: dark) {
-    .bg-light {
-        background-color: #231F20 !important;
-    }
-
-    .border-bottom {
-        border-color: #495057 !important;
-    }
-
-    .card-header::before {
-        border-right-color: #495057;
-    }
-
-    .card-header::after {
-        border-right-color: #343a40;
-    }
 }
