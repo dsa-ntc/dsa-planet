@@ -2,9 +2,9 @@
 
 ## Manually adding your feed via Pull Request
 
-If you don't want to wait for a member of the NTC to add your feed,
-you can bypass the issues template to add it directly to the file
-[planet.ini](planet.ini).
+If you don't want to submit your feed via a
+[GitHub issue](https://github.com/dsa-ntc/dsa-planet/issues/new?assignees=&labels=addition&projects=dsa-ntc%2Fdsa-planet&template=feed-request.yml&title=%5BFEED%5D%3A+),
+you can bypass the issues template to add it directly to the file [planet.ini](planet.ini).
 
 1. Fork this repository
 2. Upload your avatar to [hackergotchi directory](hackergotchi)
