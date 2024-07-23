@@ -12,7 +12,7 @@
       content="{{ page.excerpt | default: locale.site_description | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
   
     <!-- stylesheet -->
-    <link rel="stylesheet" href="https://static.opensuse.org/chameleon-3.0/dist/css/chameleon.css">
+    <link rel="stylesheet" href="{{ '/assets/css/chameleon.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/app.css' | relative_url }}">
   
     <!-- favicon -->
