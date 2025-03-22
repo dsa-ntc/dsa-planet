@@ -23,6 +23,8 @@ name: Jekyll Feed Tests
       - master
   workflow_dispatch:
 
+permissions: read-all
+
 jobs:
   feed-test:
     runs-on: ubuntu-latest

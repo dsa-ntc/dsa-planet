@@ -15,11 +15,14 @@ on:
             - Gemfile.lock
     workflow_dispatch:
 
+permissions: read-all
+
 jobs:
     rubocop:
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
+
+        permissions:
+            security-events: write
 
         steps:
             - name: Checkout repository

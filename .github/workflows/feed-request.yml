@@ -5,20 +5,23 @@ on:
         types: [labeled]
 
 
-permissions:
-    pull-requests: write
-    contents: write
+permissions: read-all
 
 jobs:
     include-feed:
         if: ${{ contains(github.event.issue.labels.*.name, 'addition') }}
         runs-on: ubuntu-latest
+
+        permissions:
+            pull-requests: write
+            contents: write
+
         steps:
             - uses: actions/checkout@v4
 
             - name: Parse feed data
               id: feed-data
-              uses: issue-ops/parser@v0
+              uses: issue-ops/parser@v4
               with:
                   body: ${{ github.event.issue.body }}
                   issue-form-template: feed-request.yml
@@ -63,7 +66,7 @@ jobs:
 
             - name: Create pull request
               if: success()
-              uses: peter-evans/create-pull-request@v6
+              uses: peter-evans/create-pull-request@v7
               with:
                   branch: "add-${{ env.BRANCH_NAME }}"
                   title: "Add Feed for ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}"
