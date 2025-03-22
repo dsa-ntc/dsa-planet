@@ -21,6 +21,8 @@ name: Jekyll Feed Tests
       - Gemfile.lock
     branches:
       - master
+  schedule:
+      - cron:  '0 9 * * 1'
   workflow_dispatch:
 
 permissions: read-all
