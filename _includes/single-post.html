@@ -11,19 +11,19 @@
                 <div class="col card-header d-flex justify-content-between pl-1 pl-md-3 border-0">
                     <div>
                         {% capture post_author %}
-                        <a aria-label="Click to see the post" href="{{ post.link }}">{{ post.author }}</a>
-                        <a aria-label="Click to see the feed" href="{{ post.rss }}">{% include icons/feed.svg %}</a>
+                        <a aria-label="Click to open the rss feed" href="{{ post.rss }}">
+                            {{ post.author }}
+                            {% include icons/feed.svg %}
+                        </a>
                         {% endcapture %}
                         {% capture post_language %}
                         {% assign lang = site.localization.locales_set[post.tags.first] %}
                         <a class="text-muted" href="{{ site.baseurl }}/{{ post.tags.first }}/">{{ lang.name }}</a>
                         {% endcapture %}
                         {% capture post_time %}
-                        <a class="text-muted" href="{{ post.original_link }}">
-                            <time id="time_{{ post.guid | slugify }}" datetime="{{ post.created_at | date_to_xmlschema }}">
-                                {{ post.created_at | date: "%H:%M" }}
-                            </time>
-                        </a>
+                        <time class="text-muted" id="time_{{ post.guid | slugify }}" datetime="{{ post.created_at | date_to_xmlschema }}">
+                            {{ post.created_at | date: "%H:%M" }}
+                        </time>
                         {% endcapture %}
                         <span class="text-muted">
                             {% if include.language %}
