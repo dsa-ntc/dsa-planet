@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: planet.db
-          key: cache-feed-sources-${{ hashFiles('Gemfile.lock') }}
+          key: cache-feed-sources-${{ hashFiles('Gemfile.lock') }}-${{ hashFiles('planet.db') }}
 
       - name: Get and Proccess Feed Content
         run: bundler exec rake build
