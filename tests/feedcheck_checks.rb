@@ -14,6 +14,9 @@ def check_status_and_location(response, url, error_message)
   if response.status.to_i.between?(300, 399) && response.headers.key?('location')
     return ["#{error}. Try using '#{response.headers['location']}' instead", Status::FAILED]
   end
+  if response.status.to_i == 403
+    return ["#{error}. Target feed is denying access.", Status::FAILED]
+  end
 
   return [error, Status::FAILED] unless response.status.to_i == 200
 
