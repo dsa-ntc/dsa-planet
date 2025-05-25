@@ -11,15 +11,15 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (6.1.7.4)
-      activesupport (= 6.1.7.4)
-    activerecord (6.1.7.4)
-      activemodel (= 6.1.7.4)
-      activesupport (= 6.1.7.4)
+    activemodel (6.1.7.5)
+      activesupport (= 6.1.7.5)
+    activerecord (6.1.7.5)
+      activemodel (= 6.1.7.5)
+      activesupport (= 6.1.7.5)
     activerecord-utils (0.4.1)
       activerecord
       logutils
-    activesupport (6.1.7.4)
+    activesupport (6.1.7.5)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -125,14 +125,14 @@ GEM
     mini_magick (5.2.0)
       benchmark
       logger
-    mini_portile2 (2.8.8)
-    minitest (5.18.1)
+    mini_portile2 (2.8.9)
+    minitest (5.25.5)
     net-http (0.6.0)
       uri
-    nokogiri (1.15.3)
+    nokogiri (1.18.8)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.15.3-x86_64-linux)
+    nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
     opmlparser (1.0.1)
     pakman (1.1.0)
@@ -236,7 +236,7 @@ GEM
     unicode-display_width (2.6.0)
     uri (1.0.3)
     webrick (1.9.1)
-    zeitwerk (2.6.8)
+    zeitwerk (2.7.3)
 
 PLATFORMS
   ruby
