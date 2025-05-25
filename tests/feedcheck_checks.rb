@@ -58,6 +58,7 @@ def check_avatar(avatar, av_dir, faraday)
   return ['_ ', Status::PASSED] unless avatar
 
   return check_url(avatar, faraday) if avatar.include? '//'
+
   avatar_path = "#{av_dir}/#{avatar}"
   return ["✗ Avatar not found: #{avatar_path}", Status::FAILED] unless File.file?(avatar_path)
 
