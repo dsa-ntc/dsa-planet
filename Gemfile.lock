@@ -11,20 +11,27 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (6.1.7.5)
-      activesupport (= 6.1.7.5)
-    activerecord (6.1.7.5)
-      activemodel (= 6.1.7.5)
-      activesupport (= 6.1.7.5)
+    activemodel (7.2.2.1)
+      activesupport (= 7.2.2.1)
+    activerecord (7.2.2.1)
+      activemodel (= 7.2.2.1)
+      activesupport (= 7.2.2.1)
+      timeout (>= 0.4.0)
     activerecord-utils (0.4.1)
       activerecord
       logutils
-    activesupport (6.1.7.5)
-      concurrent-ruby (~> 1.0, >= 1.0.2)
+    activesupport (7.2.2.1)
+      base64
+      benchmark (>= 0.3)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.3.1)
+      connection_pool (>= 2.2.5)
+      drb
       i18n (>= 1.6, < 2)
+      logger (>= 1.4.2)
       minitest (>= 5.1)
-      tzinfo (~> 2.0)
-      zeitwerk (~> 2.3)
+      securerandom (>= 0.3)
+      tzinfo (~> 2.0, >= 2.0.5)
     activityutils (0.1.2)
       logutils (>= 0.6.1)
     addressable (2.8.7)
@@ -37,9 +44,11 @@ GEM
       rubocop (~> 1.0)
     colorator (1.1.0)
     concurrent-ruby (1.3.5)
+    connection_pool (2.5.3)
     crass (1.0.6)
     csv (3.3.4)
     date-formatter (0.1.1)
+    drb (2.2.3)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0)
@@ -221,6 +230,7 @@ GEM
       rake (>= 13)
     sass-embedded (1.89.0-x86_64-linux-gnu)
       google-protobuf (~> 4.31)
+    securerandom (0.4.1)
     sqlite3 (1.6.3)
       mini_portile2 (~> 2.8.0)
     sqlite3 (1.6.3-x86_64-linux)
@@ -231,12 +241,12 @@ GEM
       logutils (>= 0.6.1)
       props (>= 1.1.2)
       rubyzip (>= 1.0.0)
+    timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
     uri (1.0.3)
     webrick (1.9.1)
-    zeitwerk (2.7.3)
 
 PLATFORMS
   ruby
