@@ -118,7 +118,7 @@ GEM
     logutils-activerecord (0.2.1)
       activerecord
       logutils (>= 0.6.1)
-    loofah (2.24.0)
+    loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mercenary (0.4.0)
