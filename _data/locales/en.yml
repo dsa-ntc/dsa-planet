@@ -23,7 +23,7 @@ welcome: DSA Feed
 # TRANSLATORS: Replace English with your language name in the translation
 welcome_lang: Welcome to the DSA Feed
 
-subtitle: This is a feed aggregator that collects news and updates from DSA chapters, national working groups and committees, and our publications all in one convenient place. Updated at 9:30 AM ET / 6:30 AM PT every morning. 
+subtitle: This is a feed aggregator that collects news and updates from DSA chapters, national working groups and committees, and our publications all in one convenient place. Updated every day at 8AM, 12PM, 4PM, and 8AM UTC. 
 subtitle_project: Democratic Socialists of America
 
 #addnotice: To have your blog added to this aggregator, please read $instructions
