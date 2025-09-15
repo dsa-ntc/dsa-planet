@@ -18,7 +18,7 @@ def check_status_and_location(response, url, error_message)
     return ["#{base_error}. Try using '#{location}' instead", Status::FAILED]
   end
 
-  return ["#{base_error}. Target feed is denying access.", Status::FAILED] if status == 403
+  return ["#{base_error}. Target feed is denying access. ", Status::FAILED] if status == 403
 
   return [base_error, Status::FAILED] unless status == 200
 
