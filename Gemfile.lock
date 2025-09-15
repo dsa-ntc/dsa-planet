@@ -59,10 +59,14 @@ GEM
     fetcher (0.4.5)
       logutils (>= 0.6)
     ffi (1.17.2)
+    ffi (1.17.2-x64-mingw-ucrt)
     ffi (1.17.2-x86_64-linux-gnu)
     forwardable-extended (2.6.0)
     gli (2.21.0)
     google-protobuf (4.31.0)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.31.0-x64-mingw-ucrt)
       bigdecimal
       rake (>= 13)
     google-protobuf (4.31.0-x86_64-linux-gnu)
@@ -129,6 +133,8 @@ GEM
       uri
     nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nokogiri (1.18.10-x64-mingw-ucrt)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
@@ -217,10 +223,13 @@ GEM
     sass-embedded (1.89.0)
       google-protobuf (~> 4.31)
       rake (>= 13)
+    sass-embedded (1.89.0-x64-mingw-ucrt)
+      google-protobuf (~> 4.31)
     sass-embedded (1.89.0-x86_64-linux-gnu)
       google-protobuf (~> 4.31)
     sqlite3 (1.6.3)
       mini_portile2 (~> 2.8.0)
+    sqlite3 (1.6.3-x64-mingw-ucrt)
     sqlite3 (1.6.3-x86_64-linux)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
@@ -238,6 +247,7 @@ GEM
 
 PLATFORMS
   ruby
+  x64-mingw-ucrt
   x86_64-linux
 
 DEPENDENCIES
@@ -261,7 +271,7 @@ DEPENDENCIES
   webrick
 
 RUBY VERSION
-   ruby 3.0.2p107
+   ruby 3.2.9p265
 
 BUNDLED WITH
    2.4.6
