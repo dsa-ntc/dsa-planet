@@ -11,34 +11,45 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (6.1.7.5)
-      activesupport (= 6.1.7.5)
-    activerecord (6.1.7.5)
-      activemodel (= 6.1.7.5)
-      activesupport (= 6.1.7.5)
+    activemodel (7.1.5.2)
+      activesupport (= 7.1.5.2)
+    activerecord (7.1.5.2)
+      activemodel (= 7.1.5.2)
+      activesupport (= 7.1.5.2)
+      timeout (>= 0.4.0)
     activerecord-utils (0.4.1)
       activerecord
       logutils
-    activesupport (6.1.7.5)
+    activesupport (7.1.5.2)
+      base64
+      benchmark (>= 0.3)
+      bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
+      connection_pool (>= 2.2.5)
+      drb
       i18n (>= 1.6, < 2)
+      logger (>= 1.4.2)
       minitest (>= 5.1)
+      mutex_m
+      securerandom (>= 0.3)
       tzinfo (~> 2.0)
-      zeitwerk (~> 2.3)
     activityutils (0.1.2)
       logutils (>= 0.6.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.3)
     base64 (0.2.0)
+    benchmark (0.4.1)
     bigdecimal (3.1.9)
     code-scanning-rubocop (0.6.1)
       rubocop (~> 1.0)
     colorator (1.1.0)
     concurrent-ruby (1.3.5)
+    connection_pool (2.5.4)
     crass (1.0.6)
     csv (3.3.4)
     date-formatter (0.1.1)
+    drb (2.2.3)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0)
@@ -129,6 +140,7 @@ GEM
       logger
     mini_portile2 (2.8.9)
     minitest (5.25.5)
+    mutex_m (0.3.0)
     net-http (0.6.0)
       uri
     nokogiri (1.18.10)
@@ -196,7 +208,7 @@ GEM
     rb-inotify (0.11.1)
       ffi (~> 1.0)
     regexp_parser (2.11.2)
-    rexml (3.4.1)
+    rexml (3.4.2)
     rouge (4.5.2)
     rss (0.3.1)
       rexml
@@ -227,6 +239,7 @@ GEM
       google-protobuf (~> 4.31)
     sass-embedded (1.89.0-x86_64-linux-gnu)
       google-protobuf (~> 4.31)
+    securerandom (0.4.1)
     sqlite3 (1.6.3)
       mini_portile2 (~> 2.8.0)
     sqlite3 (1.6.3-x64-mingw-ucrt)
@@ -238,12 +251,12 @@ GEM
       logutils (>= 0.6.1)
       props (>= 1.1.2)
       rubyzip (>= 1.0.0)
+    timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
     uri (1.0.3)
     webrick (1.9.1)
-    zeitwerk (2.7.3)
 
 PLATFORMS
   ruby
