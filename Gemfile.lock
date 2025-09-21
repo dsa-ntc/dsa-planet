@@ -11,15 +11,15 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (6.1.7.5)
-      activesupport (= 6.1.7.5)
-    activerecord (6.1.7.5)
-      activemodel (= 6.1.7.5)
-      activesupport (= 6.1.7.5)
+    activemodel (6.1.7.10)
+      activesupport (= 6.1.7.10)
+    activerecord (6.1.7.10)
+      activemodel (= 6.1.7.10)
+      activesupport (= 6.1.7.10)
     activerecord-utils (0.4.1)
       activerecord
       logutils
-    activesupport (6.1.7.5)
+    activesupport (6.1.7.10)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
