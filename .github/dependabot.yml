@@ -9,6 +9,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: activerecord
+        versions: [ ">=7" ]
 
   - package-ecosystem: "github-actions"
     directory: "/"
