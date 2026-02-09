@@ -31,10 +31,10 @@ jobs:
   feed-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install Ruby
-        uses: ruby/setup-ruby@v1.267.0
+        uses: ruby/setup-ruby@v1.270.0
         with:
           ruby-version: 3.2.9
           bundler-cache: true

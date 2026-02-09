@@ -17,17 +17,17 @@ jobs:
             contents: write
 
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v6
 
             - name: Parse feed data
               id: feed-data
-              uses: issue-ops/parser@v4
+              uses: issue-ops/parser@v5
               with:
                   body: ${{ github.event.issue.body }}
                   issue-form-template: feed-request.yml
 
             - name: Install Ruby
-              uses: ruby/setup-ruby@v1.267.0
+              uses: ruby/setup-ruby@v1.270.0
               with:
                 ruby-version: 3.2.9
                 bundler-cache: true
@@ -66,7 +66,7 @@ jobs:
 
             - name: Create pull request
               if: success()
-              uses: peter-evans/create-pull-request@v7
+              uses: peter-evans/create-pull-request@v8
               with:
                   branch: "add-${{ env.BRANCH_NAME }}"
                   title: "Add Feed for ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}"
