@@ -21,7 +21,7 @@ jobs:
 
             - name: Parse feed data
               id: feed-data
-              uses: issue-ops/parser@v4
+              uses: issue-ops/parser@v5
               with:
                   body: ${{ github.event.issue.body }}
                   issue-form-template: feed-request.yml
