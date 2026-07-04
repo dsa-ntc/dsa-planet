@@ -4,16 +4,17 @@
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
+
 updates:
-  - package-ecosystem: "bundler"
-    directory: "/"
+  - package-ecosystem: bundler
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: quarterly
     ignore:
       - dependency-name: activerecord
         versions: [ ">=7" ]
 
-  - package-ecosystem: "github-actions"
+  - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: quarterly
