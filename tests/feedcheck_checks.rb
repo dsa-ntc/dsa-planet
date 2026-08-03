@@ -19,6 +19,13 @@ def check_status_and_location(response, url, error_message)
     return ["#{base_error}(redirect to '#{location}') ", Status::FAILED]
   end
 
+  if status == 302 && location
+    uri = URI.parse(location) rescue nil
+    if uri&.host&.end_with?('google.com') && uri&.path == '/sorry/index'
+      return ["#{base_error}(google bot challenge) ", Status::SKIPPED]
+    end
+  end
+
   return ["#{base_error}(access denied) ", Status::FAILED] if status == 403
 
   return ["#{base_error}", Status::FAILED] unless status == 200
