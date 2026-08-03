@@ -62,6 +62,20 @@ def convert_and_save_other_images(uri, base_filename, filename)
   return filename unless extension != '.svg'
 
   image = MiniMagick::Image.new(filename)
+
+  # remove excess background
+  image.fuzz '5%'
+  image.trim
+
+  # convert to square
+  max_side = [image.width, image.height].max
+  image.combine_options do |c|
+    c.gravity 'center'
+    c.background 'transparent'
+    c.extent "#{max_side}x#{max_side}"
+  end
+
+  # save as webp
   image.format 'webp'
   filename = "#{base_filename}.webp"
   image.write(filename)
@@ -83,9 +97,9 @@ def prepare_image(uri, base_filename)
 end
 
 def download_and_convert_image(options)
-  avatar_url = validate_url(options['what_image_do_you_want_to_use'])
+  avatar_url = validate_url(options['image'])
   uri = URI(avatar_url)
-  base_filename = "#{AV_DIR}/#{options['enter_your_chapter_or_working_group_name'].downcase.tr('- ', '')}"
+  base_filename = "#{AV_DIR}/#{options['dsa-body'].downcase.tr('- ', '')}"
 
   filename = prepare_image(uri, base_filename)
   filename = convert_and_save_other_images(uri, base_filename, filename)
@@ -94,12 +108,13 @@ def download_and_convert_image(options)
   File.basename(filename)
 end
 
-def process_json_argument(json_argument)
-  title = json_argument['enter_your_chapter_or_working_group_name']
-  feed = validate_url(json_argument['what_is_your_rss_feed'])
-  link = validate_url(json_argument['what_is_your_website'])
-  avatar_url = download_and_convert_image(json_argument)
-  location = validate_language_code(json_argument['what_language_is_your_content_in'])
+def process_json_argument(options)
+  puts options
+  title = options['dsa-body']
+  feed = validate_url(options['rss-feed'])
+  link = validate_url(options['site'])
+  avatar_url = download_and_convert_image(options)
+  location = validate_language_code(options['language'])
 
   {
     title: title,

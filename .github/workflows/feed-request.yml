@@ -17,49 +17,43 @@ jobs:
         permissions:
             pull-requests: write
             contents: write
+            actions: write
 
         steps:
             - uses: actions/checkout@v7
 
-            - name: Parse feed data
-              id: feed-data
+            - id: parse-issue
               uses: issue-ops/parser@v5
               with:
                   body: ${{ github.event.issue.body }}
                   issue-form-template: feed-request.yml
 
-            - name: Install Ruby
-              uses: ruby/setup-ruby@v1.316.0
+            - uses: ruby/setup-ruby@v1.316.0
               with:
                 ruby-version: 4.0
                 bundler-cache: true
 
-            - name: Install dependencies
-              run: |
-                bundler install
-                sudo apt install imagemagick -y
+            - run: bundler install
 
-            - name: Add feed to planet.ini
-              id: add-feed-ini
-              run: |
-                escaped_json=$(echo '${{ steps.feed-data.outputs.json }}' | sed 's/"/\\"/g')
-                bundle exec ruby tests/feed_request.rb $escaped_json
+            - uses: mfinelli/setup-imagemagick@v8
 
-            - name: Process feed json
+            - id: add-feed-to-ini
               run: |
-                raw_name='${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}'
+                escaped_json='${{ steps.parse-issue.outputs.json }}'
+                bundle exec ruby tests/feed_request.rb "$escaped_json"
+
+            - id: simple-chapter-name
+              run: |
+                raw_name='${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}'
                 sanitized_name=$(echo $raw_name | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
                 echo "CHAPTER_NAME=$sanitized_name" >> $GITHUB_ENV
 
-            - name: Check Feed
-              run: bundle exec ruby tests/feedcheck.rb ${{ env.CHAPTER_NAME }}
+            - run: bundle exec ruby tests/feedcheck.rb ${{ env.CHAPTER_NAME }}
 
-            - name: Save Job Summary
-              if: failure()
+            - if: failure()
               run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
 
-            - name: Add comment
-              if: failure()
+            - if: failure()
               run: gh issue comment "$NUMBER" --body "$BODY"
               env:
                 GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,17 +62,16 @@ jobs:
                 BODY: |
                   Unfortunately the feeds did not pass automated checks. Please verify the submitted information.
 
-            - name: Create pull request
-              if: success()
+            - if: success()
               uses: peter-evans/create-pull-request@v8
               with:
                   branch: "add-${{ env.CHAPTER_NAME }}"
-                  title: "Add Feed for ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}"
+                  title: "Add Feed for ${{ fromJSON(steps.parse-issue.outputs.json).enter_your_chapter_or_working_group_name }}"
                   body: |
-                    DSA Body: ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}
-                    Feed URL: ${{ fromJSON(steps.feed-data.outputs.json).what_is_your_rss_feed }}
-                    Site URL: ${{ fromJSON(steps.feed-data.outputs.json).what_is_your_website }}
-                    Image URL: ${{ fromJSON(steps.feed-data.outputs.json).what_image_do_you_want_to_use }}
+                    DSA Body: ${{ fromJSON(steps.parse-issue.outputs.json).enter_your_chapter_or_working_group_name }}
+                    Feed URL: ${{ fromJSON(steps.parse-issue.outputs.json).what_is_your_rss_feed }}
+                    Site URL: ${{ fromJSON(steps.parse-issue.outputs.json).what_is_your_website }}
+                    Image URL: ${{ fromJSON(steps.parse-issue.outputs.json).what_image_do_you_want_to_use }}
                   commit-message: |
-                    add ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }} feed to planet.ini.
+                    add ${{ fromJSON(steps.parse-issue.outputs.json).enter_your_chapter_or_working_group_name }} feed to planet.ini.
                     closes issue #${{ github.event.issue.number }}
