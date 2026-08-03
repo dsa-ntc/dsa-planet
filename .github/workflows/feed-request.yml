@@ -66,12 +66,14 @@ jobs:
               uses: peter-evans/create-pull-request@v8
               with:
                   branch: "add-${{ env.CHAPTER_NAME }}"
-                  title: "Add Feed for ${{ fromJSON(steps.parse-issue.outputs.json).enter_your_chapter_or_working_group_name }}"
+                  title: "Add Feed for ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}"
                   body: |
-                    DSA Body: ${{ fromJSON(steps.parse-issue.outputs.json).enter_your_chapter_or_working_group_name }}
-                    Feed URL: ${{ fromJSON(steps.parse-issue.outputs.json).what_is_your_rss_feed }}
-                    Site URL: ${{ fromJSON(steps.parse-issue.outputs.json).what_is_your_website }}
-                    Image URL: ${{ fromJSON(steps.parse-issue.outputs.json).what_image_do_you_want_to_use }}
+                    DSA Body: ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}
+                    Feed URL: ${{ fromJSON(steps.parse-issue.outputs.json).rss-feed }}
+                    Site URL: ${{ fromJSON(steps.parse-issue.outputs.json).site }}
+                    Image URL: ${{ fromJSON(steps.parse-issue.outputs.json).image }}
+
+                    Closes issue #${{ github.event.issue.number }}
                   commit-message: |
-                    add ${{ fromJSON(steps.parse-issue.outputs.json).enter_your_chapter_or_working_group_name }} feed to planet.ini.
+                    add ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }} feed to planet.ini.
                     closes issue #${{ github.event.issue.number }}
