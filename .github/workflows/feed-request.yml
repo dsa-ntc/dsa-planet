@@ -7,7 +7,7 @@ on:
 permissions: read-all
 
 env:
-    BRANCH_NAME: requested-addition
+    CHAPTER_NAME: requested-addition
 
 jobs:
     include-feed:
@@ -47,10 +47,10 @@ jobs:
             - run: |
                 raw_name='${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}'
                 sanitized_name=$(echo $raw_name | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
-                echo "BRANCH_NAME=$sanitized_name" >> $GITHUB_ENV
+                echo "CHAPTER_NAME=$sanitized_name" >> $GITHUB_ENV
 
             - name: Check Feed
-              run: bundle exec ruby tests/feedcheck.rb ${{ env.BRANCH_NAME }}
+              run: bundle exec ruby tests/feedcheck.rb ${{ env.CHAPTER_NAME }}
 
             - name: Save Job Summary
               if: failure()
@@ -70,7 +70,7 @@ jobs:
               if: success()
               uses: peter-evans/create-pull-request@v8
               with:
-                  branch: "add-${{ env.BRANCH_NAME }}"
+                  branch: "add-${{ env.CHAPTER_NAME }}"
                   title: "Add Feed for ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}"
                   body: |
                     DSA Body: ${{ fromJSON(steps.feed-data.outputs.json).enter_your_chapter_or_working_group_name }}
