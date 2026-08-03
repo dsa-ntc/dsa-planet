@@ -6,21 +6,22 @@ require 'uri'
 
 class Status
   FAILED = true
+  SKIPPED = false
   PASSED = false
 end
 
 def check_status_and_location(response, url, error_message)
   status = response.status.to_i
   location = response.headers['location']
-  base_error = "#{error_message}Non successful status code #{status} when trying to access '#{url}'"
+  base_error = "#{error_message}(status code #{status}) "
 
   if status.between?(300, 399) && response.headers.key?('location')
-    return ["#{base_error}. Try using '#{location}' instead", Status::FAILED]
+    return ["#{base_error}(redirect to '#{location}') ", Status::FAILED]
   end
 
-  return ["#{base_error}. Target feed is denying access. ", Status::FAILED] if status == 403
+  return ["#{base_error}(access denied) ", Status::FAILED] if status == 403
 
-  return [base_error, Status::FAILED] unless status == 200
+  return ["#{base_error}", Status::FAILED] unless status == 200
 
   ['✓ ', Status::PASSED]
 end
@@ -57,12 +58,12 @@ def check_urls(url_arr, faraday)
 end
 
 def check_avatar(avatar, av_dir, faraday)
-  return ['_ ', Status::PASSED] unless avatar
+  return ['~ ', Status::SKIPPED] unless avatar
 
   return check_urls([avatar], faraday) if avatar.include? '//'
 
   avatar_path = "#{av_dir}/#{avatar}"
-  return ["✗ Avatar not found: #{avatar_path}", Status::FAILED] unless File.file?(avatar_path)
+  return ["✗ Avatar not found: #{avatar_path} ", Status::FAILED] unless File.file?(avatar_path)
 
   ['✓ ', Status::PASSED]
 end
@@ -83,7 +84,7 @@ def check_source(key, section, faraday)
   url_result = check_urls([link, feed], faraday)
   did_fail = accumulate_results(result, did_fail, url_result)
 
-  xml_result = url_result.last ? ['_ ', Status::PASSED] : parse_xml(feed, faraday)
+  xml_result = url_result.last ? ['~ ', Status::SKIPPED] : parse_xml(feed, faraday)
   did_fail = accumulate_results(result, did_fail, xml_result)
 
   [[result.compact.join, did_fail], avatar]
