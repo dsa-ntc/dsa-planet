@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'faraday'
-require 'faraday/follow_redirects'
 require 'inifile'
 
 require_relative 'feedcheck_checks'
@@ -20,7 +19,6 @@ error_messages = []
 avatars = ['default.webp']
 
 faraday = Faraday.new(request: { open_timeout: 10 }) do |f|
-  f.response :follow_redirects
   f.adapter :net_http
 end
 

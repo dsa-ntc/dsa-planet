@@ -11,16 +11,16 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (8.1.3)
-      activesupport (= 8.1.3)
-    activerecord (8.1.3)
-      activemodel (= 8.1.3)
-      activesupport (= 8.1.3)
+    activemodel (8.1.3.1)
+      activesupport (= 8.1.3.1)
+    activerecord (8.1.3.1)
+      activemodel (= 8.1.3.1)
+      activesupport (= 8.1.3.1)
       timeout (>= 0.4.0)
     activerecord-utils (0.4.1)
       activerecord
       logutils
-    activesupport (8.1.3)
+    activesupport (8.1.3.1)
       base64
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.3.1)
@@ -43,10 +43,10 @@ GEM
     code-scanning-rubocop (0.6.1)
       rubocop (~> 1.0)
     colorator (1.1.0)
-    concurrent-ruby (1.3.7)
+    concurrent-ruby (1.3.8)
     connection_pool (3.0.2)
     crass (1.0.7)
-    csv (3.3.5)
+    csv (3.3.6)
     date-formatter (0.1.1)
     drb (2.2.3)
     em-websocket (0.5.3)
@@ -57,8 +57,6 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-follow_redirects (0.5.0)
-      faraday (>= 1, < 3)
     faraday-net_http (3.4.4)
       net-http (~> 0.5)
     feedfilter (1.1.1)
@@ -116,7 +114,7 @@ GEM
       sass-embedded (~> 1.75)
     jekyll-watch (2.2.1)
       listen (~> 3.0)
-    json (2.20.0)
+    json (2.21.2)
     kramdown (2.5.2)
       rexml (>= 3.4.4)
     kramdown-parser-gfm (1.1.0)
@@ -133,11 +131,11 @@ GEM
     logutils-activerecord (0.2.1)
       activerecord
       logutils (>= 0.6.1)
-    loofah (2.25.1)
+    loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mercenary (0.4.0)
-    mini_magick (5.3.1)
+    mini_magick (5.3.2)
       logger
     mini_portile2 (2.8.9)
     minitest (6.0.6)
@@ -159,7 +157,7 @@ GEM
       liquid (>= 4.0.0)
       logutils (>= 0.6.1)
     parallel (2.1.0)
-    parser (3.3.11.1)
+    parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
     pathutil (0.16.2)
@@ -215,7 +213,7 @@ GEM
     rouge (4.7.0)
     rss (0.3.3)
       rexml
-    rubocop (1.88.1)
+    rubocop (1.88.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -226,7 +224,7 @@ GEM
       rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.49.1)
+    rubocop-ast (1.50.0)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
     rubocop-rake (0.7.1)
@@ -235,12 +233,12 @@ GEM
     ruby-progressbar (1.13.0)
     rubyzip (3.4.1)
     safe_yaml (1.0.5)
-    sass-embedded (1.101.0)
+    sass-embedded (1.102.0)
       google-protobuf (~> 4.31)
       rake (>= 13)
-    sass-embedded (1.101.0-x64-mingw-ucrt)
+    sass-embedded (1.102.0-x64-mingw-ucrt)
       google-protobuf (~> 4.31)
-    sass-embedded (1.101.0-x86_64-linux-gnu)
+    sass-embedded (1.102.0-x86_64-linux-gnu)
       google-protobuf (~> 4.31)
     securerandom (0.4.1)
     sqlite3 (2.9.5)
@@ -270,7 +268,6 @@ DEPENDENCIES
   activerecord
   code-scanning-rubocop
   faraday
-  faraday-follow_redirects
   inifile
   jekyll
   jekyll-paginate-v2
