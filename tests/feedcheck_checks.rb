@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'faraday'
-require 'nokogiri'
+require 'rss'
 require 'uri'
 
 class Status
@@ -39,13 +39,21 @@ rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
   ["#{error_message}#{e.class} when trying to access '#{url}' ", Status::FAILED]
 end
 
-def parse_xml(feed, faraday)
+def parse_feed(feed, faraday)
   error_message = '✗ '
   response = request_data(faraday, feed, error_message)
   return response if response.is_a? Array
 
-  xml_err = Nokogiri::XML(response.body).errors
-  return ["#{error_message}Unusable XML syntax: #{feed} #{xml_err} ", Status::FAILED] unless xml_err.empty?
+  begin
+    parsed_feed = RSS::Parser.parse(response.body, false)
+
+    unless parsed_feed
+      return ["#{error_message}Unparseable feed format", Status::FAILED]
+    end
+
+  rescue RSS::Error => e
+    return ["#{error_message}Unusable Feed syntax: #{feed} (#{e.message})", Status::FAILED]
+  end
 
   ['✓ ', Status::PASSED]
 end
@@ -91,7 +99,7 @@ def check_source(key, section, faraday)
   url_result = check_urls([link, feed], faraday)
   did_fail = accumulate_results(result, did_fail, url_result)
 
-  xml_result = url_result.last ? ['~ ', Status::SKIPPED] : parse_xml(feed, faraday)
+  xml_result = url_result.last ? ['~ ', Status::SKIPPED] : parse_feed(feed, faraday)
   did_fail = accumulate_results(result, did_fail, xml_result)
 
   [[result.compact.join, did_fail], avatar]
