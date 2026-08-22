@@ -16,7 +16,7 @@ end
 planet_srcs = IniFile.load(INI_FILE).to_h
 did_any_fail = false
 error_messages = []
-avatars = ['default.webp']
+avatars = ['default.png']
 
 faraday = Faraday.new(request: { open_timeout: 10 }) do |f|
   f.adapter :net_http
@@ -27,7 +27,7 @@ planet_srcs.each do |key, section|
   queue.push([key, section]) if ARGV.empty? || ARGV.include?(key)
 end
 
-workers = (0...4).map do
+workers = (0...3).map do
   Thread.new do
     until queue.empty?
       key, section = queue.pop
@@ -35,25 +35,31 @@ workers = (0...4).map do
 
       res, avatar = check_source(key, section, faraday)
       avatars << avatar
-      puts res.first
-      error_messages << res.first if res.last
-      did_any_fail ||= res.last
+
+      puts ":: #{res[:key]} => #{res[:details]}"
+
+      error_messages << res if res[:did_fail]
+      did_any_fail ||= res[:did_fail]
     end
   end
 end
 workers.each(&:join)
 
 unused_files_result = check_unused_files(AV_DIR, avatars) if ARGV.empty? || ARGV[0].nil? || !ARGV[0]
-puts "::warning::#{unused_files_result.first}" unless unused_files_result.nil? || !unused_files_result.last
+
+if unused_files_result && unused_files_result.last == Status::FAILED
+  unused_data = unused_files_result.first
+  puts "::warning::There are unused files in #{unused_data[:dir]}: #{unused_data[:files].join(', ')}"
+  error_messages << unused_data
+end
 
 if did_any_fail
   puts 'Feed Errors Summary => (avatar) (link) (feed) (xml)'
   error_messages.each do |message|
-    puts "::error#{message}"
+    next if message[:type] == :unused_files
+
+    puts "::error:: #{message[:key]} => #{message[:details]}"
   end
-  error_messages << unused_files_result.first unless unused_files_result.nil? || !unused_files_result.last
-  create_job_summary(error_messages)
-  abort
-end
+
 File.delete('error-summary.md') if File.exist?('error-summary.md')
 puts '::notice::All feeds passed checks!'

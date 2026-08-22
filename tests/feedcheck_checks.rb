@@ -4,10 +4,16 @@ require 'faraday'
 require 'rss'
 require 'uri'
 
-class Status
-  FAILED = true
-  SKIPPED = false
-  PASSED = false
+module Status
+  FAILED  = :failed
+  SKIPPED = :skipped
+  PASSED  = :passed
+
+  PREFIX = {
+    PASSED  => '✓ ',
+    FAILED  => '✗ ',
+    SKIPPED => '~ '
+  }.freeze
 end
 
 def check_status_and_location(response, url, error_message)
@@ -66,7 +72,10 @@ end
 def check_urls(url_arr, faraday)
   results = url_arr.map { |url| check_single_url(url, faraday) }
 
-  [results.map(&:first).join, results.any?(&:last)]
+  has_failures = results.any? { |res| res.last == Status::FAILED }
+  status_symbol = has_failures ? Status::FAILED : Status::PASSED
+
+  [results.map(&:first).join, status_symbol]
 end
 
 def check_avatar(avatar, av_dir, faraday)
@@ -87,26 +96,29 @@ def accumulate_results(result, did_fail, new_result)
 end
 
 def check_source(key, section, faraday)
-  result = [":: #{key} =>  "]
   avatar, link, feed = %w[avatar link feed].map { |k| section[k] if section.key?(k) }
 
-  avatar_result = check_avatar(avatar, AV_DIR, faraday)
-  did_fail = accumulate_results(result, Status::PASSED, avatar_result)
+  avatar_msg, avatar_status = check_avatar(avatar, AV_DIR, faraday)
+  link_msg, link_status     = check_urls([link, feed], faraday)
 
-  url_result = check_urls([link, feed], faraday)
-  did_fail = accumulate_results(result, did_fail, url_result)
+  feed_msg, feed_status     = link_status == Status::FAILED ? ['~ ', Status::SKIPPED] : parse_feed(feed, faraday)
 
-  xml_result = url_result.last ? ['~ ', Status::SKIPPED] : parse_feed(feed, faraday)
-  did_fail = accumulate_results(result, did_fail, xml_result)
+  did_fail = [avatar_status, link_status, feed_status].include?(Status::FAILED)
 
-  [[result.compact.join, did_fail], avatar]
+  result = {
+    key: key,
+    did_fail: did_fail,
+    details: [avatar_msg, link_msg, feed_msg].join
+  }
+
+  [result, avatar]
 end
 
 def check_unused_files(av_dir, avatars)
   hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
   diff = (hackergotchis - avatars)
 
-  return ["There are unused files in #{av_dir}: #{diff.sort.join(', ')}", Status::FAILED] unless diff.empty?
+  return [{ type: :unused_files, dir: av_dir, files: diff.sort }, Status::FAILED] unless diff.empty?
 
   [nil, Status::PASSED]
 end
