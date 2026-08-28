@@ -60,7 +60,7 @@ jobs:
                 GH_REPO: ${{ github.repository }}
                 NUMBER: ${{ github.event.issue.number }}
                 BODY: |
-                  Unfortunately the feeds did not pass automated checks. Please verify the submitted information.
+                  Unfortunately the feed did not pass automated checks. Please verify the submitted information.
 
             - if: success()
               uses: peter-evans/create-pull-request@v8
