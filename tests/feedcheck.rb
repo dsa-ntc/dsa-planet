@@ -31,7 +31,7 @@ missing_feed_names.each do |feed_name|
   did_any_fail = true
 end
 
-puts "::notice::#{'Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
+puts "#{'::notice::Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
 
 avatars = ['default.png']
 mutex = Mutex.new
@@ -51,7 +51,7 @@ workers = Array.new(WORKER_COUNT) do
 
       mutex.synchronize do
         avatars << result.avatar
-        error_messages << result.error_messages if result.failed
+        error_messages << result.error_messages.unshift(feed_name)  if result.failed
         did_any_fail ||= result.failed
       end
     end
