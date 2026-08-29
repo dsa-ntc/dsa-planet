@@ -4,6 +4,7 @@ require 'faraday'
 require 'rss'
 require 'uri'
 
+# Statuses for check results, with associated symbols
 module Status
   FAILED = :failed
   SKIPPED = :skipped
@@ -16,21 +17,27 @@ module Status
   }.freeze
 end
 
+# Data structure for results of an individual check
 CheckResult = Struct.new(:status, :message) do
   def failed?
     status == Status::FAILED
   end
 end
 
+# Data structure for results of all checks for a given feed
 SourceResult = Struct.new(:feed_name, :symbols, :error_messages, :failed, :avatar, keyword_init: true)
 
-def check_status_and_location(response, url)
+def check_status_and_location(response)
   status = response.status.to_i
   location = response.headers['location']
   base_error = "Status code #{status}"
 
   if status.between?(300, 399) && location
-    uri = URI.parse(location) rescue nil
+    begin
+      uri = URI.parse(location)
+    rescue
+      uri = nil
+    end
     if uri&.host&.end_with?('google.com') && uri&.path == '/sorry/index'
       return CheckResult.new(Status::SKIPPED, "#{base_error} (google bot challenge) ")
     end
@@ -68,7 +75,7 @@ def check_single_url(url, faraday)
   response = request_data(faraday, url)
   return response if response.is_a?(CheckResult)
 
-  check_status_and_location(response, url)
+  check_status_and_location(response)
 end
 
 def check_avatar(avatar, av_dir, faraday)
