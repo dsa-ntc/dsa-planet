@@ -5,10 +5,11 @@ require 'inifile'
 
 require_relative 'feedcheck_checks'
 
-INI_FILE = 'planet.ini'   # ini file containing library of feeds
-AV_DIR = 'hackergotchi'   # folder containing local feed avatars
-WORKER_COUNT = 3          # number of concurrent workers
-FEED_NAME_PADDING = 48    # number of characters before each ``=>`` in log output
+INI_FILE = 'planet.ini'           # ini file containing library of feeds
+DEFAULT_AVATAR = 'default.webp'   # name of image to use if avatar is not provided
+AV_DIR = 'hackergotchi'           # folder containing local feed avatars
+WORKER_COUNT = 3                  # number of concurrent workers
+FEED_NAME_PADDING = 48            # number of characters before each ``=>`` in log output
 
 faraday = Faraday.new(request: { open_timeout: 10 }) do |f|
   f.adapter :net_http
@@ -33,7 +34,7 @@ end
 
 puts "#{'::notice::Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
 
-avatars = ['default.webp']
+avatars = [DEFAULT_AVATAR]
 mutex = Mutex.new
 
 workers = Array.new(WORKER_COUNT) do
@@ -64,7 +65,7 @@ unused_files_message = run_unused_check ? check_unused_files(AV_DIR, avatars) : 
 
 
 if did_any_fail
-  error_messages.each { |message| puts "::group::#{message.join("\n::error::")}\n::endgroup::" }
+  error_messages.each { |message| puts "::group::#{message.join("\n::error::#{message.first}: ")}\n::endgroup::" }
 
   File.open('error-summary.md', 'w') do |file|
     file.write "# Summary\n"
