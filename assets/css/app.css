@@ -73,6 +73,44 @@ h2 {
     padding-top: 24px;
 }
 
+.main-info {
+    display: grid;
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.main-info__logo img {
+    display: block;
+    width: 100%;
+    max-width: 18rem;
+    height: auto;
+    margin-inline: auto;
+}
+
+.main-info__text {
+    min-width: 0;
+}
+
+.main-info__languages {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 991.98px) {
+    .main-info {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .main-info__logo img {
+        max-width: 14rem;
+    }
+
+    .main-info__text {
+        text-align: center;
+    }
+}
+
 .page-link, .page-item.active .page-link {
     color: #fff;
     border-color: #231F20;

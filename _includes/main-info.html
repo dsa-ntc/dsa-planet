@@ -1,10 +1,10 @@
 <div class="py-3 mb-3 border-bottom bg-light">
   <div class="container">
-    <div class="row col-md-10 mx-auto">
-      <div class="col-md-auto d-flex">
-        <img alt="DSA's logo of multi-racial clasped hands bearing a rose" class="mx-auto" src="{{ site.baseurl }}/assets/images/logo.svg"/>
+    <div class="main-info col-md-10 mx-auto">
+      <div class="main-info__logo">
+        <img alt="DSA's logo of multi-racial clasped hands bearing a rose" src="{{ site.baseurl }}/assets/images/logo.svg"/>
       </div>
-      <div class="col-md my-auto">
+      <div class="main-info__text">
         <h2>
         {% if page.locale.name == 'Global' %}
         {{ locale.welcome }}
@@ -14,7 +14,7 @@
         </h2>
         <h3>{{ locale.subtitle | replace: '$project', project }}</h3>
       </div>
-      <div class="col-12 text-center">
+      <div class="main-info__languages text-center">
         {% assign sorted = site.tags | sort %}
         {% for tag in sorted %}
         {% assign lang = site.localization.locales_set[tag.first] %}

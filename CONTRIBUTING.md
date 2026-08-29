@@ -8,8 +8,10 @@ you can bypass the issues template to add it directly to the file [planet.ini](p
 
 1. Fork this repository
 2. Upload your avatar to [hackergotchi directory](hackergotchi)
-  * Supported formats: `jpg`, `png`, (some) `svg` files, and `webp`. When in doubt, just use your chapter's Twitter or Facebook avatar. Webp is preferred as it speeds up load times.
-3. Edit [planet.ini](planet.ini) and add a new section containing the info for your feed
+  * Supported formats: `jpg`, `png`, (some) `svg` files, and `webp`.
+    When in doubt, just use your chapter's Twitter or Facebook avatar.
+    Webp is preferred as it speeds up load times.
+3. Edit [planet.ini](planet.ini) and add a new section containing the info for your feed in alphabetical order:
 
   ```ini
   [exampledsa]
