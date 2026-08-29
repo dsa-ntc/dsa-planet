@@ -3,6 +3,8 @@
 require 'pluto/models'
 require 'nokogiri'
 
+require_relative '../lib/feed_html_sanitizer'
+
 puts 'db settings:'
 @db_config = {
   adapter: 'sqlite3',
@@ -26,7 +28,7 @@ def file_parameters(item)
 end
 
 def fix_html_content(content, item)
-  html = Nokogiri::HTML::DocumentFragment.parse(content).to_html
+  html = FeedHtmlSanitizer.sanitize(content)
   html.gsub!('{', '&#123;')
   html.gsub!('}', '&#125;')
   html.gsub!(%r{(?<=src=["'])/(?!/)}, "#{%r{//.*?(?=/|$)}.match(item.feed.link)[0]}/")
@@ -109,7 +111,7 @@ end
 
 def prepare_item(item)
   item.published = item.updated if item.published.nil?
-  item.title = fix_up_title(item.title, (item.content || item.summary)) if item.title == ''
+  item.title = fix_up_title(item.title, item.content || item.summary) if item.title == ''
 
   posts_root = './_posts'
   FileUtils.mkdir_p(posts_root) # ensure path exists
