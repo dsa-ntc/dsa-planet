@@ -31,6 +31,8 @@ missing_feed_names.each do |feed_name|
   did_any_fail = true
 end
 
+puts "::notice::#{'Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
+
 avatars = ['default.png']
 mutex = Mutex.new
 
@@ -62,13 +64,12 @@ unused_files_message = run_unused_check ? check_unused_files(AV_DIR, avatars) : 
 
 
 if did_any_fail
-  puts "::notice::#{'Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
-  error_messages.each { |message| puts "::group::#{message}\n::endgroup::" }
+  error_messages.each { |message| puts "::group::#{message.join("\n::error::")}\n::endgroup::" }
 
   File.open('error-summary.md', 'w') do |file|
     file.write "# Summary\n"
     file.write "\n## Error Summary\n"
-    error_messages.each { |message| file.write "\n### #{message}\n" }
+    error_messages.each { |message| file.write "\n### #{message.join("\n")}\n" }
     if unused_files_message
       puts "::warning::#{unused_files_message}"
       file.write "\n## Warning Summary\n"
