@@ -2,7 +2,6 @@
 
 require 'faraday'
 require 'inifile'
-require 'thread'
 
 require_relative 'feedcheck_checks'
 
@@ -38,7 +37,11 @@ mutex = Mutex.new
 workers = Array.new(WORKER_COUNT) do
   Thread.new do
     loop do
-      feed_name, section = queue.pop(true) rescue break
+      begin
+        feed_name, section = queue.pop(true)
+      rescue
+        break
+      end
       next unless section.is_a?(Hash) && feed_name != 'global'
 
       result = check_source(feed_name, section, faraday, AV_DIR)
@@ -46,7 +49,7 @@ workers = Array.new(WORKER_COUNT) do
 
       mutex.synchronize do
         avatars << result.avatar
-        error_messages << "#{feed_name}%0D#{result.error_messages}" if result.failed
+        error_messages << "#{feed_name}\n::error::#{result.error_messages}" if result.failed
         did_any_fail ||= result.failed
       end
     end
@@ -74,8 +77,8 @@ if did_any_fail
   end
 
   abort
-else
-  puts "::warning::#{unused_files_message}" if unused_files_message
+elseif unused_files_message
+  puts "::warning::#{unused_files_message}"
 end
 
 File.delete('error-summary.md') if File.exist?('error-summary.md')
