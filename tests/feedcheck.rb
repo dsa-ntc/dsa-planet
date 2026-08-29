@@ -77,7 +77,7 @@ if did_any_fail
   end
 
   abort
-elseif unused_files_message
+elsif unused_files_message
   puts "::warning::#{unused_files_message}"
 end
 
