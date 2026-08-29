@@ -51,7 +51,7 @@ workers = Array.new(WORKER_COUNT) do
 
       mutex.synchronize do
         avatars << result.avatar
-        error_messages << "#{feed_name}\n::error::#{result.error_messages}" if result.failed
+        error_messages << result.error_messages if result.failed
         did_any_fail ||= result.failed
       end
     end
