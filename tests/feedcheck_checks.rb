@@ -5,120 +5,138 @@ require 'rss'
 require 'uri'
 
 module Status
-  FAILED  = :failed
+  FAILED = :failed
   SKIPPED = :skipped
-  PASSED  = :passed
+  PASSED = :passed
 
   PREFIX = {
-    PASSED  => '✓ ',
-    FAILED  => '✗ ',
+    PASSED => '✓ ',
+    FAILED => '✗ ',
     SKIPPED => '~ '
   }.freeze
 end
 
-def check_status_and_location(response, url, error_message)
+CheckResult = Struct.new(:status, :message) do
+  def failed?
+    status == Status::FAILED
+  end
+end
+
+SourceResult = Struct.new(:feed_name, :symbols, :error_messages, :failed, :avatar, keyword_init: true)
+
+def check_status_and_location(response, url)
   status = response.status.to_i
   location = response.headers['location']
-  base_error = "#{error_message}(status code #{status}) "
+  base_error = "Status code #{status}"
 
   if status.between?(300, 399) && location
     uri = URI.parse(location) rescue nil
     if uri&.host&.end_with?('google.com') && uri&.path == '/sorry/index'
-      return ["#{base_error}(google bot challenge) ", Status::SKIPPED]
+      return CheckResult.new(Status::SKIPPED, "#{base_error} (google bot challenge) ")
     end
-    return ["#{base_error}(redirect to '#{location}') ", Status::FAILED]
+    return CheckResult.new(Status::FAILED, "#{base_error} (redirect to '#{location}') ")
   end
 
-  return ["#{base_error}(access denied) ", Status::FAILED] if status == 403
+  return CheckResult.new(Status::FAILED, "#{base_error} (access denied) ") if status == 403
 
-  return ["#{base_error}", Status::FAILED] unless status == 200
+  return CheckResult.new(Status::FAILED, base_error) unless status == 200
 
-  ['✓ ', Status::PASSED]
+  CheckResult.new(Status::PASSED)
 end
 
-def request_data(connection, url, error_message)
+def request_data(connection, url)
   connection.get(URI(url))
 rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
-  ["#{error_message}#{e.class} when trying to access '#{url}' ", Status::FAILED]
+  CheckResult.new(Status::FAILED, "#{e.class} when trying to access '#{url}' ")
 end
 
 def parse_feed(feed, faraday)
-  error_message = '✗ '
-  response = request_data(faraday, feed, error_message)
-  return response if response.is_a? Array
+  response = request_data(faraday, feed)
+  return response if response.is_a?(CheckResult)
 
   begin
     parsed_feed = RSS::Parser.parse(response.body, false)
-
-    unless parsed_feed
-      return ["#{error_message}Unparseable feed format", Status::FAILED]
-    end
-
+    return CheckResult.new(Status::FAILED, 'Unparseable feed format ') unless parsed_feed
   rescue RSS::Error => e
-    return ["#{error_message}Unusable Feed syntax: #{feed} (#{e.message})", Status::FAILED]
+    return CheckResult.new(Status::FAILED, "Unusable Feed syntax: #{feed} (#{e.message}) ")
   end
 
-  ['✓ ', Status::PASSED]
+  CheckResult.new(Status::PASSED)
 end
 
 def check_single_url(url, faraday)
-  error_message = '✗ '
-  res = request_data(faraday, url, error_message)
-  return res if res.is_a? Array
+  response = request_data(faraday, url)
+  return response if response.is_a?(CheckResult)
 
-  check_status_and_location(res, url, error_message)
-end
-
-def check_urls(url_arr, faraday)
-  results = url_arr.map { |url| check_single_url(url, faraday) }
-
-  has_failures = results.any? { |res| res.last == Status::FAILED }
-  status_symbol = has_failures ? Status::FAILED : Status::PASSED
-
-  [results.map(&:first).join, status_symbol]
+  check_status_and_location(response, url)
 end
 
 def check_avatar(avatar, av_dir, faraday)
-  return ['~ ', Status::SKIPPED] unless avatar
-
-  return check_urls([avatar], faraday) if avatar.include? '//'
+  return CheckResult.new(Status::SKIPPED) unless avatar
+  return check_single_url(avatar, faraday) if avatar.include?('//')
 
   avatar_path = "#{av_dir}/#{avatar}"
-  return ["✗ Avatar not found: #{avatar_path} ", Status::FAILED] unless File.file?(avatar_path)
+  return CheckResult.new(Status::FAILED, "Avatar not found: #{avatar_path} ") unless File.file?(avatar_path)
 
-  ['✓ ', Status::PASSED]
+  CheckResult.new(Status::PASSED)
 end
 
-def accumulate_results(result, did_fail, new_result)
-  result << new_result.first
+class SourceChecks
+  def initialize
+    @results = {}
+  end
 
-  did_fail | new_result.last
+  def add(label, result)
+    @results[label] = result
+  end
+
+  def failed?
+    @results.each_value.any?(&:failed?)
+  end
+
+  def symbols
+    @results.each_value.map { |result| Status::PREFIX[result.status] }.join
+  end
+
+  def error_messages
+    @results.filter_map do |label, result|
+      "#{label}: #{result.message.strip}" if result.failed? && result.message
+    end
+  end
 end
 
-def check_source(key, section, faraday)
-  avatar, link, feed = %w[avatar link feed].map { |k| section[k] if section.key?(k) }
+def check_source(feed_name, section, faraday, avatar_directory)
+  avatar, link, feed = %w[avatar link feed].map { |k| section[k] }
 
-  avatar_msg, avatar_status = check_avatar(avatar, AV_DIR, faraday)
-  link_msg, link_status     = check_urls([link, feed], faraday)
+  checks = SourceChecks.new
+  checks.add('avatar', check_avatar(avatar, avatar_directory, faraday))
 
-  feed_msg, feed_status     = link_status == Status::FAILED ? ['~ ', Status::SKIPPED] : parse_feed(feed, faraday)
+  link_result = check_single_url(link, faraday)
+  feed_result = check_single_url(feed, faraday)
+  checks.add('link', link_result)
+  checks.add('feed', feed_result)
 
-  did_fail = [avatar_status, link_status, feed_status].include?(Status::FAILED)
+  xml_result = if link_result.failed? || feed_result.failed?
+                 CheckResult.new(Status::SKIPPED)
+               else
+                 parse_feed(feed, faraday)
+               end
+  checks.add('xml', xml_result)
 
-  result = {
-    key: key,
-    did_fail: did_fail,
-    details: [avatar_msg, link_msg, feed_msg].join
-  }
-
-  [result, avatar]
+  SourceResult.new(
+    feed_name: feed_name,
+    symbols: checks.symbols,
+    error_messages: checks.error_messages.join("\n"),
+    failed: checks.failed?,
+    avatar: avatar
+  )
 end
 
-def check_unused_files(av_dir, avatars)
-  hackergotchis = Dir.foreach(av_dir).select { |f| File.file?("#{av_dir}/#{f}") }
-  diff = (hackergotchis - avatars)
+def check_unused_files(avatar_directory, expected_avatars)
+  avatar_files = Dir.foreach(avatar_directory).select { |f| File.file?("#{avatar_directory}/#{f}") }
+  diff = avatar_files - expected_avatars
 
-  return [{ type: :unused_files, dir: av_dir, files: diff.sort }, Status::FAILED] unless diff.empty?
+  return nil if diff.empty?
 
-  [nil, Status::PASSED]
+  "There are unused files in #{avatar_directory}: #{diff.sort.join(', ')}"
 end
