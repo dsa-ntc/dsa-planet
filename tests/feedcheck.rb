@@ -2,64 +2,76 @@
 
 require 'faraday'
 require 'inifile'
+require 'thread'
 
 require_relative 'feedcheck_checks'
-require_relative 'feedcheck_job_summary'
 
-INI_FILE = 'planet.ini'
-AV_DIR = 'hackergotchi'
-
-def write_to_file(contents, filename)
-  File.open(filename, 'w') { |file| file.write contents.join }
-end
-
-planet_srcs = IniFile.load(INI_FILE).to_h
-did_any_fail = false
-error_messages = []
-avatars = ['default.png']
+INI_FILE = 'planet.ini'   # ini file containing library of feeds
+AV_DIR = 'hackergotchi'   # folder containing local feed avatars
+WORKER_COUNT = 3          # number of concurrent workers
+FEED_NAME_PADDING = 48    # number of characters before each ``=>`` in log output
 
 faraday = Faraday.new(request: { open_timeout: 10 }) do |f|
   f.adapter :net_http
 end
 
 queue = Queue.new
-planet_srcs.each do |key, section|
-  queue.push([key, section]) if ARGV.empty? || ARGV.include?(key)
+known_feed_names = []
+IniFile.load(INI_FILE).to_h.each do |feed_name, section|
+  known_feed_names << feed_name
+  queue.push([feed_name, section]) if ARGV.empty? || ARGV.include?(feed_name)
 end
 
-workers = (0...3).map do
+error_messages = []
+did_any_fail = false
+
+missing_feed_names = ARGV - known_feed_names
+missing_feed_names.each do |feed_name|
+  puts "#{feed_name.ljust(FEED_NAME_PADDING)} =>  not found in #{INI_FILE}"
+  error_messages << "#{feed_name}\nFeed not found in #{INI_FILE}"
+  did_any_fail = true
+end
+
+avatars = ['default.png']
+mutex = Mutex.new
+
+workers = Array.new(WORKER_COUNT) do
   Thread.new do
-    until queue.empty?
-      key, section = queue.pop
-      next unless section.is_a?(Hash) && (key != 'global')
+    loop do
+      feed_name, section = queue.pop(true) rescue break
+      next unless section.is_a?(Hash) && feed_name != 'global'
 
-      res, avatar = check_source(key, section, faraday)
-      avatars << avatar
+      result = check_source(feed_name, section, faraday, AV_DIR)
+      puts "#{feed_name.ljust(FEED_NAME_PADDING)} =>  #{result.symbols}"
 
-      puts ":: #{res[:key]} => #{res[:details]}"
-
-      error_messages << res if res[:did_fail]
-      did_any_fail ||= res[:did_fail]
+      mutex.synchronize do
+        avatars << result.avatar
+        error_messages << "#{feed_name}\n#{result.error_messages}" if result.failed
+        did_any_fail ||= result.failed
+      end
     end
   end
 end
 workers.each(&:join)
 
-unused_files_result = check_unused_files(AV_DIR, avatars) if ARGV.empty? || ARGV[0].nil? || !ARGV[0]
+run_unused_check = ARGV.empty? || ARGV[0].nil?
+unused_files_message = run_unused_check ? check_unused_files(AV_DIR, avatars) : nil
 
-if unused_files_result && unused_files_result.last == Status::FAILED
-  unused_data = unused_files_result.first
-  puts "::warning::There are unused files in #{unused_data[:dir]}: #{unused_data[:files].join(', ')}"
-  error_messages << unused_data
-end
+puts "::warning::#{unused_files_message}" if unused_files_message
 
 if did_any_fail
-  puts 'Feed Errors Summary => (avatar) (link) (feed) (xml)'
-  error_messages.each do |message|
-    next if message[:type] == :unused_files
+  puts "::notice::#{'Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
+  error_messages.each { |message| puts "::error::#{message}" }
 
-    puts "::error:: #{message[:key]} => #{message[:details]}"
+  error_messages << unused_files_message if unused_files_message
+
+  File.open('error-summary.md', 'w') do |file|
+    file.write "# Error Summary\n\n"
+    error_messages.each { |message| file.write "## #{message}\n\n" }
   end
+
+  abort
+end
 
 File.delete('error-summary.md') if File.exist?('error-summary.md')
 puts '::notice::All feeds passed checks!'
