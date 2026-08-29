@@ -38,9 +38,11 @@ def check_status_and_location(response)
     rescue
       uri = nil
     end
+
     if uri&.host&.end_with?('google.com') && uri&.path == '/sorry/index'
       return CheckResult.new(Status::SKIPPED, "#{base_error} (google bot challenge) ")
     end
+
     return CheckResult.new(Status::FAILED, "#{base_error} (redirect to '#{location}') ")
   end
 
