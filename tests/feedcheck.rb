@@ -27,13 +27,13 @@ did_any_fail = false
 missing_feed_names = ARGV - known_feed_names
 missing_feed_names.each do |feed_name|
   puts "#{feed_name.ljust(FEED_NAME_PADDING)} =>  not found in #{INI_FILE}"
-  error_messages << "#{feed_name}%0DFeed not found in #{INI_FILE}"
+  error_messages << "#{feed_name}\nFeed not found in #{INI_FILE}"
   did_any_fail = true
 end
 
 puts "#{'::notice::Feed Errors Summary'.ljust(FEED_NAME_PADDING)} =>  (avatar) (link) (feed) (xml)"
 
-avatars = ['default.png']
+avatars = ['default.webp']
 mutex = Mutex.new
 
 workers = Array.new(WORKER_COUNT) do
@@ -51,7 +51,7 @@ workers = Array.new(WORKER_COUNT) do
 
       mutex.synchronize do
         avatars << result.avatar
-        error_messages << result.error_messages.unshift(feed_name)  if result.failed
+        error_messages << result.error_messages.unshift(feed_name) if result.failed
         did_any_fail ||= result.failed
       end
     end
