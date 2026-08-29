@@ -126,7 +126,7 @@ def check_source(feed_name, section, faraday, avatar_directory)
   SourceResult.new(
     feed_name: feed_name,
     symbols: checks.symbols,
-    error_messages: checks.error_messages.join("\n"),
+    error_messages: checks.error_messages.join("\n::error::"),
     failed: checks.failed?,
     avatar: avatar
   )
