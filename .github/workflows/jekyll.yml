@@ -5,7 +5,7 @@ on:
     paths-ignore: &trigger_paths_ignore
       - .github/workflows/feeds.yml
       - .github/workflows/feed-request.yml
-      - *.md
+      - '*.md'
       - tests/feedcheck*.rb
     branches: &trigger_branches
       - master
