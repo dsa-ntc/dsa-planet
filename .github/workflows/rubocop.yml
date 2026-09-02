@@ -2,17 +2,13 @@ name: Rubocop Linting
 
 on:
     push:
-        paths:
-            - '**.rb'
+        paths: &trigger_paths
             - .github/workflows/rubocop.yml
+            - '**.rb'
             - Gemfile
             - Gemfile.lock
     pull_request:
-        paths:
-            - '**.rb'
-            - .github/workflows/rubocop.yml
-            - Gemfile
-            - Gemfile.lock
+        paths: *trigger_paths
     workflow_dispatch:
 
 permissions: read-all
