@@ -9,7 +9,7 @@ INI_FILE = 'planet.ini'           # ini file containing library of feeds
 DEFAULT_AVATAR = 'default.webp'   # name of image to use if avatar is not provided
 AV_DIR = 'hackergotchi'           # folder containing local feed avatars
 WORKER_COUNT = 3                  # number of concurrent workers
-FEED_NAME_PADDING = 48            # number of characters before each ``=>`` in log output
+FEED_NAME_PADDING = 40            # number of characters before each ``=>`` in log output
 
 faraday = Faraday.new(request: { open_timeout: 10 }) do |f|
   f.adapter :net_http
