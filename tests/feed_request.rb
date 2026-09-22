@@ -97,6 +97,8 @@ def prepare_image(uri, base_filename)
 end
 
 def download_and_convert_image(options)
+  return nil unless options['image'] && !options['image'].empty?
+
   avatar_url = validate_url(options['image'])
   uri = URI(avatar_url)
   base_filename = "#{AV_DIR}/#{options['dsa-body'].downcase.tr('- ', '')}"
