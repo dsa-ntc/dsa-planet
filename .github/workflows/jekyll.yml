@@ -6,7 +6,7 @@ on:
       - .github/workflows/feeds.yml
       - .github/workflows/feed-request.yml
       - '*.md'
-      - tests/feedcheck*.rb
+      - bin/feed_check*.rb
     branches: &trigger_branches
       - master
   push:

@@ -8,7 +8,7 @@ on:
       - Gemfile.lock
       - hackergotchi/*
       - planet.ini
-      - tests/feedcheck*.rb
+      - bin/feed_check*.rb
     branches: &trigger_branches
       - master
   push:
@@ -42,7 +42,7 @@ jobs:
         run: bundler install
 
       - name: Check Feeds
-        run: bundle exec ruby tests/feedcheck.rb
+        run: bundle exec ruby bin/feed_check.rb
 
       - name: Save Job Summary
         if: failure()

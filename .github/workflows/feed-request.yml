@@ -40,7 +40,7 @@ jobs:
             - id: add-feed-to-ini
               run: |
                 escaped_json='${{ steps.parse-issue.outputs.json }}'
-                bundle exec ruby tests/feed_request.rb "$escaped_json"
+                bundle exec ruby bin/feed_request.rb "$escaped_json"
 
             - id: simple-chapter-name
               run: |
@@ -48,7 +48,7 @@ jobs:
                 sanitized_name=$(echo $raw_name | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
                 echo "CHAPTER_NAME=$sanitized_name" >> $GITHUB_ENV
 
-            - run: bundle exec ruby tests/feedcheck.rb ${{ env.CHAPTER_NAME }}
+            - run: bundle exec ruby bin/feed_check.rb ${{ env.CHAPTER_NAME }}
 
             - if: failure()
               run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
