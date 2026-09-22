@@ -52,5 +52,5 @@ git clone https://github.com/dsa-ntc/dsa-planet # substitute in your fork url if
 cd dsa-planet
 bundle config set --local path 'vendor/bundle'
 bundler install
-bundle exec ruby tests/feedcheck.rb
+bundle exec ruby bin/feed_check.rb
 ```

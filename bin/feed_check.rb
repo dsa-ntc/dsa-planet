@@ -3,7 +3,7 @@
 require 'faraday'
 require 'inifile'
 
-require_relative 'feedcheck_checks'
+require_relative 'feed_check_checks'
 
 INI_FILE = 'planet.ini'           # ini file containing library of feeds
 DEFAULT_AVATAR = 'default.webp'   # name of image to use if avatar is not provided
