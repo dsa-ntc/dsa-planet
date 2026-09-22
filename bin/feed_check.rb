@@ -63,7 +63,6 @@ workers.each(&:join)
 run_unused_check = ARGV.empty? || ARGV[0].nil?
 unused_files_message = run_unused_check ? check_unused_files(AV_DIR, avatars) : nil
 
-
 if did_any_fail
   error_messages.each { |message| puts "::group::#{message.join("\n::error::#{message.first}: ")}\n::endgroup::" }
 
