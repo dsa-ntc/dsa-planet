@@ -33,8 +33,6 @@ jobs:
                 ruby-version: 4.0
                 bundler-cache: true
 
-            - run: bundler install
-
             - uses: mfinelli/setup-imagemagick@v8
 
             - id: add-feed-to-ini

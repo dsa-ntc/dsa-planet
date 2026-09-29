@@ -32,18 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1.321.0
+      - uses: ruby/setup-ruby@v1.321.0
         with:
           ruby-version: 4.0
           bundler-cache: true
 
-      - name: Install Dependencies
-        run: bundler install
+      - run: bundle exec ruby bin/feed_check.rb
 
-      - name: Check Feeds
-        run: bundle exec ruby bin/feed_check.rb
-
-      - name: Save Job Summary
-        if: failure()
+      - if: failure()
         run: cat error-summary.md >> $GITHUB_STEP_SUMMARY

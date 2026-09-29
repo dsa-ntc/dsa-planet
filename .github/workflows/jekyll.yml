@@ -34,26 +34,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1.316.0
+      - uses: ruby/setup-ruby@v1.316.0
         with:
           ruby-version: 4.0
           bundler-cache: true
 
-      - name: Install Dependencies
-        run: bundler install
-
-      - name: Configure Feed Cache
-        uses: actions/cache@v6
+      - uses: actions/cache@v6
         with:
           path: planet.db
           key: cache-feed-sources-${{ hashFiles('Gemfile.lock') }}-${{ hashFiles('planet.db') }}
 
-      - name: Get and Proccess Feed Content
-        run: bundler exec rake build
+      - run: bundler exec rake build
 
-      - name: Build Jekyll Site
-        run: bundler exec jekyll build
+      - run: bundler exec jekyll build
 
       - uses: actions/upload-pages-artifact@v5
 
@@ -70,6 +63,5 @@ jobs:
       pages: write
 
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v5

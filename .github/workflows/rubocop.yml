@@ -21,17 +21,12 @@ jobs:
             security-events: write
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v7
+            - uses: actions/checkout@v7
 
-            - name: Install Ruby
-              uses: ruby/setup-ruby@v1.316.0
+            - uses: ruby/setup-ruby@v1.316.0
               with:
                 ruby-version: 4.0
                 bundler-cache: true
-
-            - name: Install dependencies
-              run: bundle install
 
             - name: Rubocop generate sarif file
               run: |
@@ -40,8 +35,7 @@ jobs:
                     [[ $? -ne 2 ]]
                 "
 
-            - name: Upload Sarif output
-              uses: github/codeql-action/upload-sarif@v4
+            - uses: github/codeql-action/upload-sarif@v4
               with:
                   sarif_file: rubocop.sarif
 
