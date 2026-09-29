@@ -33,10 +33,10 @@ def check_status_and_location(response)
   base_error = "Status code #{status}"
 
   if status.between?(300, 399) && location
-    begin
-      uri = URI.parse(location)
-    rescue
-      uri = nil
+    uri = begin
+      URI.parse(location)
+    rescue StandardError
+      nil
     end
 
     if uri&.host&.end_with?('google.com') && uri&.path == '/sorry/index'
@@ -90,6 +90,7 @@ def check_avatar(avatar, av_dir, faraday)
   CheckResult.new(Status::PASSED)
 end
 
+# Methods for processing each source
 class SourceChecks
   def initialize
     @results = {}
@@ -125,11 +126,7 @@ def check_source(feed_name, section, faraday, avatar_directory)
   checks.add('link', link_result)
   checks.add('feed', feed_result)
 
-  xml_result = if link_result.failed? || feed_result.failed?
-                 CheckResult.new(Status::SKIPPED)
-               else
-                 parse_feed(feed, faraday)
-               end
+  xml_result = link_result.failed? || feed_result.failed? ? CheckResult.new(Status::SKIPPED) : parse_feed(feed, faraday)
   checks.add('xml', xml_result)
 
   SourceResult.new(
@@ -142,7 +139,7 @@ def check_source(feed_name, section, faraday, avatar_directory)
 end
 
 def check_unused_files(avatar_directory, expected_avatars)
-  avatar_files = Dir.foreach(avatar_directory).select { |f| File.file?("#{avatar_directory}/#{f}") }
+  avatar_files = Dir.children(avatar_directory).select { |f| File.file?("#{avatar_directory}/#{f}") }
   diff = avatar_files - expected_avatars
 
   return nil if diff.empty?
