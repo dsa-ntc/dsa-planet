@@ -68,7 +68,7 @@ if did_any_fail
   error_messages.each { |message| puts "::group::#{message.join("\n::error::#{message.first}: ")}\n::endgroup::" }
 
   File.open('error-summary.md', 'w') do |file|
-    summary = "# Summary\n\n## Error Summary\n"
+    summary = +"# Summary\n\n## Error Summary\n"
     error_messages.each { |message| summary << "\n### #{message.join("\n")}\n" }
 
     if unused_files_message
