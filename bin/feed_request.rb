@@ -32,7 +32,7 @@ def process_json_argument(options)
 end
 
 def update_ini_with_options(options)
-  ini = IniFile.load(INI_FILE) || IniFile.new(encoding: 'UTF-8')
+  ini = IniFile.load(INI_FILE) || IniFile.new(filename: INI_FILE, encoding: 'UTF-8')
   section_name = options[:title].downcase.gsub(/[^a-z0-9]/, '')
 
   ini[section_name] = get_content(
@@ -57,26 +57,14 @@ def get_content(title, feed, link, avatar, location)
 end
 
 def write_ini(ini)
-  sorted_ini = IniFile.new(encoding: 'UTF-8')
+  sorted_ini = IniFile.new(filename: INI_FILE, encoding: 'UTF-8')
+  sorted_ini[''] = ini['']
 
-  ini.each_section do |section|
-    next if section == ''
-
+  ini.sections.sort.each do |section|
     sorted_ini[section] = ini[section]
   end
 
-  File.open(INI_FILE, 'w') do |file|
-    write_global_section(file, ini)
-    file.write sorted_ini.to_s
-  end
-end
-
-def write_global_section(file, ini)
-  top_level_props = ini['']
-  return if top_level_props.empty?
-
-  top_level_props.each { |key, value| file.puts "#{key} = #{value}" }
-  file.puts ''
+  sorted_ini.save
 end
 
 # ------------------------------------------------------------------------------
@@ -84,7 +72,7 @@ end
 # ------------------------------------------------------------------------------
 
 def download_and_convert_image(options)
-  avatar_input = options['image'].to_s.strip
+  avatar_input = options['avatar'].to_s.strip
   return nil if avatar_input.empty?
 
   uri = URI(validate_url(avatar_input))
