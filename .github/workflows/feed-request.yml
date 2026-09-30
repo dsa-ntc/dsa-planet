@@ -1,77 +1,102 @@
 name: Request Feed Inclusion
 
 on:
-    issues:
-        types: [labeled]
+  issues:
+    types: [labeled]
 
 permissions: read-all
 
 env:
-    CHAPTER_NAME: requested-addition
+  CHAPTER_NAME: requested-addition
 
 jobs:
-    include-feed:
-        if: ${{ contains(github.event.issue.labels.*.name, 'addition') }}
-        runs-on: ubuntu-latest
+  include-feed:
+    if: ${{ contains(github.event.issue.labels.*.name, 'addition') }}
+    runs-on: ubuntu-latest
 
-        permissions:
-            pull-requests: write
-            contents: write
-            actions: write
+    permissions:
+      pull-requests: write
+      contents: write
+      actions: write
 
-        steps:
-            - uses: actions/checkout@v7
+    steps:
+      - uses: actions/checkout@v7
 
-            - id: parse-issue
-              uses: issue-ops/parser@v5
-              with:
-                  body: ${{ github.event.issue.body }}
-                  issue-form-template: feed-request.yml
+      - id: parse-issue
+        uses: issue-ops/parser@v5
+        with:
+          body: ${{ github.event.issue.body }}
+          issue-form-template: feed-request.yml
 
-            - uses: ruby/setup-ruby@v1.316.0
-              with:
-                ruby-version: 4.0
-                bundler-cache: true
+      - id: validate-issue
+        env:
+          ISSUE_JSON: ${{ steps.parse-issue.outputs.json }}
+        run: |
+          ruby -rjson -e '
+            begin
+              data = JSON.parse(ENV["ISSUE_JSON"])
+              if data.is_a?(Hash) && !data["dsa-body"].to_s.strip.empty? && !data["rss-feed"].to_s.strip.empty?
+                File.open(ENV["GITHUB_OUTPUT"], "a") { |f| f.puts "valid=true" }
+              else
+                File.open(ENV["GITHUB_OUTPUT"], "a") { |f| f.puts "valid=false" }
+              end
+            rescue
+              File.open(ENV["GITHUB_OUTPUT"], "a") { |f| f.puts "valid=false" }
+            end
+          '
 
-            - uses: mfinelli/setup-imagemagick@v8
+      - uses: ruby/setup-ruby@v1.316.0
+        if: steps.validate-issue.outputs.valid == 'true'
+        with:
+          ruby-version: 4.0
+          bundler-cache: false
 
-            - id: add-feed-to-ini
-              run: |
-                escaped_json='${{ steps.parse-issue.outputs.json }}'
-                bundle exec ruby bin/feed_request.rb "$escaped_json"
+      - uses: mfinelli/setup-imagemagick@v8
+        if: steps.validate-issue.outputs.valid == 'true'
 
-            - id: simple-chapter-name
-              run: |
-                raw_name='${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}'
-                sanitized_name=$(echo $raw_name | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
-                echo "CHAPTER_NAME=$sanitized_name" >> $GITHUB_ENV
+      - id: add-feed-to-ini
+        if: steps.validate-issue.outputs.valid == 'true'
+        env:
+          ISSUE_JSON: ${{ steps.parse-issue.outputs.json }}
+        run: |
+          bundle exec ruby bin/feed_request.rb "$ISSUE_JSON"
 
-            - run: bundle exec ruby bin/feed_check.rb ${{ env.CHAPTER_NAME }}
+      - id: simple-chapter-name
+        if: steps.validate-issue.outputs.valid == 'true'
+        env:
+          ISSUE_JSON: ${{ steps.parse-issue.outputs.json }}
+        run: |
+          raw_name=$(ruby -rjson -e 'puts JSON.parse(ENV["ISSUE_JSON"])["dsa-body"]')
+          sanitized_name=$(echo "$raw_name" | tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]\n\r' | tr ' ' '-')
+          echo "CHAPTER_NAME=$sanitized_name" >> $GITHUB_ENV
 
-            - if: failure()
-              run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
+      - run: bundle exec ruby bin/feed_check.rb "${{ env.CHAPTER_NAME }}"
+        if: steps.validate-issue.outputs.valid == 'true'
 
-            - if: failure()
-              run: gh issue comment "$NUMBER" --body "$BODY"
-              env:
-                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                GH_REPO: ${{ github.repository }}
-                NUMBER: ${{ github.event.issue.number }}
-                BODY: |
-                  Unfortunately the feed did not pass automated checks. Please verify the submitted information.
+      - if: failure() && steps.validate-issue.outputs.valid == 'true'
+        run: cat error-summary.md >> $GITHUB_STEP_SUMMARY
 
-            - if: success()
-              uses: peter-evans/create-pull-request@v8
-              with:
-                  branch: "add-${{ env.CHAPTER_NAME }}"
-                  title: "Add Feed for ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}"
-                  body: |
-                    DSA Body: ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}
-                    Feed URL: ${{ fromJSON(steps.parse-issue.outputs.json).rss-feed }}
-                    Site URL: ${{ fromJSON(steps.parse-issue.outputs.json).site }}
-                    Image URL: ${{ fromJSON(steps.parse-issue.outputs.json).image }}
+      - if: failure() && steps.validate-issue.outputs.valid == 'true'
+        run: gh issue comment "$NUMBER" --body "$BODY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          BODY: |
+            Unfortunately the feed did not pass automated checks. Please verify the submitted information.
 
-                    Closes issue #${{ github.event.issue.number }}
-                  commit-message: |
-                    add ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }} feed to planet.ini.
-                    closes issue #${{ github.event.issue.number }}
+      - if: success() && steps.validate-issue.outputs.valid == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: "add-${{ env.CHAPTER_NAME }}"
+          title: "Add Feed for ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}"
+          body: |
+            DSA Body: ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }}
+            Feed URL: ${{ fromJSON(steps.parse-issue.outputs.json).rss-feed }}
+            Site URL: ${{ fromJSON(steps.parse-issue.outputs.json).site }}
+            Image URL: ${{ fromJSON(steps.parse-issue.outputs.json).image }}
+
+            Closes issue #${{ github.event.issue.number }}
+          commit-message: |
+            add ${{ fromJSON(steps.parse-issue.outputs.json).dsa-body }} feed to planet.ini.
+            closes issue #${{ github.event.issue.number }}
