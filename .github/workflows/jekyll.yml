@@ -42,7 +42,7 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: planet.db
-          key: cache-feed-sources-${{ hashFiles('Gemfile.lock') }}-${{ hashFiles('planet.db') }}
+          key: cache-feed-sources-${{ hashFiles('Gemfile.lock') }}-${{ hashFiles('planet.ini') }}
 
       - run: bundler exec rake build
 

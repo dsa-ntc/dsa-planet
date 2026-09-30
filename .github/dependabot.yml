@@ -12,6 +12,6 @@ updates:
       interval: quarterly
 
   - package-ecosystem: github-actions
-    directory: "/"
+    directory: '/'
     schedule:
       interval: quarterly
