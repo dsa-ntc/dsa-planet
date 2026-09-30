@@ -12,19 +12,19 @@ INI_FILE = 'planet.ini'
 AV_DIR = 'hackergotchi'
 
 def validate_url(url)
-  uri = URI.parse(url)
-  return uri if %w[http https].include?(uri.scheme) && uri.host.include?('.')
+  uri = URI.parse(url.to_s)
+  return uri if %w[http https].include?(uri.scheme) && uri.host
 
   raise OptionParser::InvalidOption, "invalid url: #{url}"
 end
 
 def validate_language_code(code)
-  raise OptionParser::InvalidOption, "invalid location: #{code}" unless code =~ /\A[A-Za-z]{2}\z/i
+  raise OptionParser::InvalidOption, "invalid location: #{code.inspect}" unless code.is_a?(String) && code =~ /\A[A-Za-z]{2}\z/i
 
   code.downcase
 end
 
-def get_content(title, feed, link, avatar, location = nil)
+def get_content(title, feed, link, avatar, location)
   {
     'title' => title,
     'feed' => feed,
@@ -34,22 +34,28 @@ def get_content(title, feed, link, avatar, location = nil)
   }.compact
 end
 
-def write_ini(ini, title)
+def write_ini(ini)
   sorted_ini = IniFile.new(encoding: 'UTF-8')
+
   ini.each_section do |section|
     next if section == 'global'
-
     sorted_ini[section] = ini[section]
   end
+
   File.open(INI_FILE, 'w') do |file|
-    file.puts "title = #{title}"
-    file.puts ''
+    if ini.has_section?('global')
+      file.puts '[global]'
+      ini['global'].each do |key, value|
+        file.puts "#{key} = #{value}"
+      end
+      file.puts ''
+    end
     file.write sorted_ini.to_s
   end
 end
 
 def sanitize_svg(uri, filename)
-  extension = File.extname(uri.path)&.downcase
+  extension = File.extname(filename)&.downcase
   return unless extension == '.svg'
 
   svg_data = File.read(filename)
@@ -58,7 +64,7 @@ def sanitize_svg(uri, filename)
 end
 
 def convert_and_save_other_images(uri, base_filename, filename)
-  extension = File.extname(uri.path)&.downcase
+  extension = File.extname(filename)&.downcase
   return filename unless extension != '.svg'
 
   image = MiniMagick::Image.new(filename)
@@ -75,7 +81,6 @@ def convert_and_save_other_images(uri, base_filename, filename)
     c.extent "#{max_side}x#{max_side}"
   end
 
-  # save as webp
   image.format 'webp'
   filename = "#{base_filename}.webp"
   image.write(filename)
@@ -85,9 +90,17 @@ end
 
 def prepare_image(uri, base_filename)
   Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
-    response = http.get(uri.path)
+    response = http.get(uri.path.empty? ? '/' : uri.path)
 
     extension = File.extname(uri.path)&.downcase
+
+    # Fallback to content-type if the URL lacks an explicit extension
+    if extension.nil? || extension.empty?
+      content_type = response['Content-Type']
+      ext_map = { 'image/jpeg' => '.jpg', 'image/png' => '.png', 'image/webp' => '.webp', 'image/svg+xml' => '.svg' }
+      extension = ext_map[content_type] || ''
+    end
+
     filename = "#{base_filename}#{extension}"
 
     File.open(filename, 'wb') { |file| file.write(response.body) }
@@ -97,11 +110,14 @@ def prepare_image(uri, base_filename)
 end
 
 def download_and_convert_image(options)
-  return nil unless options['image'] && !options['image'].empty?
+  return nil unless options['avatar'] && !options['avatar'].empty?
 
-  avatar_url = validate_url(options['image'])
+  avatar_url = validate_url(options['avatar'])
   uri = URI(avatar_url)
-  base_filename = "#{AV_DIR}/#{options['dsa-body'].downcase.tr('- ', '')}"
+
+  # Strip all non-alphanumeric characters to prevent path traversal
+  safe_name = options['dsa-body'].to_s.downcase.gsub(/[^a-z0-9]/, '')
+  base_filename = "#{AV_DIR}/#{safe_name}"
 
   filename = prepare_image(uri, base_filename)
   filename = convert_and_save_other_images(uri, base_filename, filename)
@@ -111,7 +127,6 @@ def download_and_convert_image(options)
 end
 
 def process_json_argument(options)
-  puts options
   title = options['dsa-body']
   feed = validate_url(options['rss-feed'])
   link = validate_url(options['site'])
@@ -128,11 +143,19 @@ def process_json_argument(options)
 end
 
 def main(json_arg)
+  if json_arg.nil? || json_arg.strip.empty?
+    warn "Error: Missing JSON argument."
+    exit 1
+  end
+
   options = process_json_argument(JSON.parse(json_arg))
-  ini = IniFile.load(INI_FILE)
-  section_name = options[:title].downcase.tr('- ', '')
+
+  ini = IniFile.load(INI_FILE) || IniFile.new(encoding: 'UTF-8')
+  section_name = options[:title].downcase.gsub(/[^a-z0-9]/, '')
+
   ini[section_name] = get_content(options[:title], options[:feed], options[:link], options[:avatar], options[:location])
-  write_ini(ini, ini['global']['title'])
+
+  write_ini(ini)
 end
 
 main(ARGV[0])
