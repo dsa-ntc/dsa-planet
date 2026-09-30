@@ -45,7 +45,7 @@ jobs:
             end
           '
 
-      - uses: ruby/setup-ruby@v1.316.0
+      - uses: ruby/setup-ruby@v1.327.0
         if: steps.validate-issue.outputs.valid == 'true'
         with:
           ruby-version: 4.0
