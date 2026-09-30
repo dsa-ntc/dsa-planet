@@ -57,14 +57,20 @@ def get_content(title, feed, link, avatar, location)
 end
 
 def write_ini(ini)
-  sorted_ini = IniFile.new(filename: INI_FILE, encoding: 'UTF-8')
-  sorted_ini[''] = ini['']
+  sorted_ini = IniFile.new(encoding: 'UTF-8')
 
   ini.sections.sort.each do |section|
     sorted_ini[section] = ini[section]
   end
 
-  sorted_ini.save
+  File.open(INI_FILE, 'w') do |file|
+    ini[:global].each do |key, value|
+      file.puts "#{key} = #{value}"
+    end
+    file.puts '' unless ini[:global].empty?
+
+    file.write sorted_ini.to_s
+  end
 end
 
 # ------------------------------------------------------------------------------
