@@ -110,9 +110,10 @@ def prepare_image(uri, base_filename)
 end
 
 def download_and_convert_image(options)
-  return nil unless options['avatar'] && !options['avatar'].empty?
+  avatar_input = options['avatar'].to_s.strip
+  return nil if avatar_input.empty?
 
-  avatar_url = validate_url(options['avatar'])
+  avatar_url = validate_url(avatar_input)
   uri = URI(avatar_url)
 
   # Strip all non-alphanumeric characters to prevent path traversal
